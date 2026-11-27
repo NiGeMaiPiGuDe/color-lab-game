@@ -1,0 +1,10 @@
+{
+  "appId": "com.colorlab.game",
+  "appName": "色彩实验室",
+  "webDir": "www",
+  "server": { "androidScheme": "https" },
+  "android": {
+    "allowMixedContent": true,
+    "useLegacyBridge": false
+  }
+}

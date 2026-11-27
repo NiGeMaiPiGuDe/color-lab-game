@@ -1,0 +1,1803 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#6c5ce7">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="色彩实验室">
+<meta name="description" content="色彩实验室 - 三原色调色与专注力训练游戏">
+<title>色彩实验室</title>
+<style>
+/* ============ 色彩实验室 · 原创主题 ============ */
+:root{
+  --bg1:#f6f3ff; --bg2:#eef7ff;
+  --ink:#2d2a4a; --ink2:#6b6885;
+  --primary:#6c5ce7; --primary-d:#5646cf;
+  --pink:#ff5e7a; --yellow:#ffd166; --mint:#4dd8c0; --blue:#7c8cff;
+  --card:#ffffff; --line:#ece9f7;
+  --shadow:0 6px 22px rgba(90,72,180,.10);
+  --radius:22px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;height:100%}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+  color:var(--ink);
+  background:linear-gradient(160deg,#dfd8ff 0%,#e8f0ff 50%,#dcf5f0 100%);
+  background-attachment:fixed;
+  overscroll-behavior:none;
+}
+#app{
+  width:100%;max-width:480px;min-height:100vh;
+  margin:0 auto;
+  background:linear-gradient(170deg,var(--bg1),var(--bg2));
+  padding:70px 18px 40px;position:relative;
+  box-shadow:0 0 40px rgba(60,40,140,.12);
+}
+@media(min-width:520px){
+  #app{margin:18px auto;border-radius:28px;min-height:calc(100vh - 36px);padding-top:88px}
+}
+
+/* 顶部栏 */
+.topbar{
+  position:fixed;top:0;left:50%;transform:translateX(-50%);z-index:30;
+  width:100%;max-width:480px;
+  display:flex;align-items:center;justify-content:space-between;
+  height:58px;padding:0 18px;
+  background:rgba(246,243,255,.94);backdrop-filter:blur(12px);
+  border-bottom:1px solid rgba(108,92,231,.08);
+}
+@media(min-width:520px){
+  .topbar{top:18px;border-radius:28px 28px 0 0}
+}
+.topbar h1{font-size:18px;margin:0;font-weight:800;letter-spacing:.5px}
+.icon-btn{
+  width:40px;height:40px;border:none;border-radius:13px;
+  background:#fff;color:var(--primary);box-shadow:0 2px 8px rgba(90,72,180,.1);
+  display:grid;place-items:center;cursor:pointer;transition:.15s;
+}
+.icon-btn svg{width:22px;height:22px}
+.icon-btn:active{transform:scale(.9)}
+#btn-back{visibility:hidden}
+#btn-back.show{visibility:visible}
+
+/* 页面切换 */
+.page{display:none;animation:fadeUp .28s ease}
+.page.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+/* ============ 首页 ============ */
+.hero{text-align:center;padding:16px 0 20px}
+.hero-logo{
+  width:92px;height:92px;margin:0 auto 10px;
+  background:linear-gradient(135deg,#8b7bff,#6c5ce7);
+  border-radius:30px;display:grid;place-items:center;
+  box-shadow:0 10px 24px rgba(108,92,231,.3);transform:rotate(-6deg);
+}
+.hero-logo svg{width:64px;height:64px}
+.hero h2{font-size:27px;margin:8px 0 4px;font-weight:900;letter-spacing:1px}
+.hero p{margin:0;color:var(--ink2);font-size:14px}
+
+.menu-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.menu-card{
+  border:none;border-radius:20px;padding:17px 14px;text-align:left;
+  background:#fff;box-shadow:var(--shadow);cursor:pointer;
+  display:flex;flex-direction:column;gap:6px;transition:.16s;
+  position:relative;overflow:hidden;min-height:118px;
+}
+.menu-card::after{
+  content:"";position:absolute;right:-24px;top:-24px;
+  width:86px;height:86px;border-radius:50%;opacity:.13;
+}
+.menu-card.c1::after{background:var(--pink)}
+.menu-card.c2::after{background:var(--blue)}
+.menu-card.c3::after{background:var(--yellow)}
+.menu-card.c4::after{background:var(--mint)}
+.menu-card.c5{grid-column:1/-1;min-height:96px;flex-direction:row;align-items:center;gap:14px;
+  background:linear-gradient(120deg,#fff,#f3efff)}
+.menu-card:active{transform:scale(.96)}
+.menu-icon{width:40px;height:40px;display:grid;place-items:center}
+.menu-icon svg{width:34px;height:34px}
+.menu-name{font-size:17px;font-weight:800;position:relative}
+.menu-desc{font-size:12px;color:var(--ink2);position:relative}
+.c5 .menu-icon{flex:none}
+.c5 .menu-name,.c5 .menu-desc{display:block}
+
+.home-stats{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px;
+  background:#fff;border-radius:var(--radius);padding:15px 8px;box-shadow:var(--shadow);
+}
+.home-stats div{text-align:center}
+.home-stats b{display:block;font-size:22px;color:var(--primary)}
+.home-stats span{font-size:11px;color:var(--ink2)}
+.tip-line{text-align:center;font-size:12px;color:#a09db8;margin:18px 0 0}
+
+/* ============ 游戏通用 ============ */
+.game-bar{display:flex;flex-direction:column;gap:9px;margin-bottom:16px}
+.diff-row{
+  display:flex;align-items:center;gap:7px;background:#fff;border-radius:15px;
+  padding:7px 9px;box-shadow:var(--shadow);
+}
+.diff-label{font-size:12px;color:var(--ink2);margin-right:2px;flex:none}
+.diff-btn{
+  flex:1;border:none;border-radius:10px;padding:8px 0;font-size:13px;font-weight:700;
+  background:#f2f0fb;color:var(--ink2);cursor:pointer;transition:.15s;
+}
+.diff-btn.active{background:var(--primary);color:#fff;box-shadow:0 3px 10px rgba(108,92,231,.28)}
+.diff-btn:active{transform:scale(.95)}
+.score-line{text-align:right;font-size:13px;color:var(--ink2)}
+.score-line b{font-size:17px;color:var(--primary)}
+.score-line i{font-style:normal;margin:0 4px;color:#c9c5de}
+.instruction{
+  background:#fff;border-radius:14px;padding:12px 15px;font-size:14px;
+  color:var(--ink2);box-shadow:var(--shadow);margin-bottom:14px;line-height:1.5;
+}
+.instruction b{color:var(--pink)}
+.action-row{display:flex;gap:11px;margin-top:18px}
+.primary-btn{
+  flex:1;border:none;border-radius:16px;padding:15px 0;font-size:16px;font-weight:800;
+  color:#fff;background:linear-gradient(135deg,#8b7bff,var(--primary));
+  box-shadow:0 6px 16px rgba(108,92,231,.3);cursor:pointer;transition:.15s;
+}
+.primary-btn:active{transform:scale(.97)}
+.ghost-btn{
+  flex:1;border:none;border-radius:16px;padding:15px 0;font-size:15px;font-weight:700;
+  color:var(--primary);background:#fff;box-shadow:var(--shadow);cursor:pointer;transition:.15s;
+}
+.ghost-btn:active{transform:scale(.97)}
+.full{width:100%;flex:1}
+.text-btn{
+  border:none;background:none;color:var(--primary);font-size:14px;font-weight:700;
+  padding:12px;cursor:pointer;text-decoration:underline;
+}
+.text-btn.danger{color:#e05a6a}
+.mini-btn{
+  border:none;background:#efeaff;color:var(--primary);font-size:11px;font-weight:700;
+  padding:5px 12px;border-radius:9px;cursor:pointer;
+}
+
+/* ============ 调色挑战 / 记忆复刻 ============ */
+.compare-area{
+  display:flex;align-items:center;justify-content:center;gap:14px;
+  background:#fff;border-radius:var(--radius);padding:18px 12px;
+  box-shadow:var(--shadow);margin-bottom:14px;
+}
+.compare-item{display:flex;flex-direction:column;align-items:center;gap:7px;flex:1}
+.compare-item small{font-size:12px;color:var(--ink2);font-weight:700}
+.compare-item code{font-size:10px;color:#a09db8;font-family:monospace}
+.vs-mark{font-size:13px;font-weight:900;color:#d3cee8;font-style:italic}
+.color-disc{
+  width:88px;height:88px;border-radius:50%;
+  border:4px solid #fff;box-shadow:0 4px 14px rgba(0,0,0,.13),inset 0 0 0 1px rgba(0,0,0,.05);
+  display:grid;place-items:center;transition:background .12s;
+}
+.color-disc.big{width:132px;height:132px}
+.disc-question{font-size:34px;color:rgba(255,255,255,.85);font-weight:800}
+
+/* ============ RGB 竖向推杆（像实体推子一样上下推） ============ */
+.slider-panel{
+  background:#fff;border-radius:var(--radius);padding:14px 10px;
+  box-shadow:var(--shadow);display:flex;flex-direction:row;gap:8px;align-items:stretch;
+}
+.fader{
+  flex:1;min-width:0;background:#faf9ff;border-radius:16px;
+  padding:10px 6px 9px;display:flex;flex-direction:column;align-items:center;gap:8px;
+}
+.fader-lab{display:flex;align-items:center;gap:5px;font-size:12px;white-space:nowrap}
+.fader-lab b{font-size:12px}
+.channel-dot{width:12px;height:12px;border-radius:50%;flex:none}
+.channel-dot.r{background:#ff5e5e}.channel-dot.g{background:#39c96b}.channel-dot.b{background:#4d8cff}
+.num-input{
+  width:64px;border:2px solid var(--line);border-radius:9px;padding:4px 2px;
+  text-align:center;font-size:14px;font-weight:800;color:var(--ink);outline:none;background:#fff;
+}
+.num-input:focus{border-color:var(--primary)}
+.fader-track{
+  width:100%;max-width:58px;height:172px;border-radius:14px;position:relative;
+  touch-action:none;cursor:ns-resize;overflow:visible;
+  background:linear-gradient(180deg,#f2f0fb,#fff);
+  box-shadow:inset 0 0 0 2px rgba(108,92,231,.10);
+}
+.fader-fill{position:absolute;bottom:0;left:0;right:0;border-radius:0 0 12px 12px;opacity:.9}
+.fader-track.r .fader-fill{background:linear-gradient(0deg,#ffd7d7,#ff5e5e)}
+.fader-track.g .fader-fill{background:linear-gradient(0deg,#d6f7e1,#39c96b)}
+.fader-track.b .fader-fill{background:linear-gradient(0deg,#d9e6ff,#4d8cff)}
+.fader-thumb{
+  position:absolute;left:-7px;right:-7px;height:26px;border-radius:9px;
+  background:#fff;border:3px solid var(--primary);box-shadow:0 3px 9px rgba(40,25,90,.28);
+  transform:translateY(50%);pointer-events:none;
+}
+.fader-track.r .fader-thumb{border-color:#ff5e5e}
+.fader-track.g .fader-thumb{border-color:#39c96b}
+.fader-track.b .fader-thumb{border-color:#4d8cff}
+.fader-btns{display:grid;grid-template-columns:1fr 1fr;gap:4px;width:100%}
+.step-btn{
+  border:none;border-radius:8px;height:30px;background:#ece9f8;color:var(--primary);
+  font-size:12px;font-weight:800;cursor:pointer;touch-action:manipulation;
+}
+.step-btn:active{transform:scale(.93);background:#ddd7f5}
+
+/* ============ 渐变排序：绝对定位拖拽，其他色块平滑让位 ============ */
+.gradient-board{
+  position:relative;background:#fff;border-radius:var(--radius);
+  box-shadow:var(--shadow);touch-action:none;overflow:hidden;
+}
+.gradient-tile{
+  position:absolute;bottom:16px;left:0;width:52px;height:176px;
+  border-radius:14px;border:3px solid transparent;
+  cursor:grab;user-select:none;-webkit-user-select:none;touch-action:none;
+  box-shadow:0 3px 8px rgba(0,0,0,.12);
+  /* 统一用 transform 位移，GPU 合成更顺滑；柔和缓动无回弹 */
+  transition:transform .34s cubic-bezier(.22,1,.36,1),box-shadow .2s,border-color .2s;
+  will-change:transform;
+}
+.gradient-tile.dragging{
+  z-index:50;box-shadow:0 18px 32px rgba(60,40,140,.42);
+  border-color:var(--primary);cursor:grabbing;
+  /* 拖拽时位置完全跟手，不加过渡延迟 */
+  transition:box-shadow .18s,border-color .18s;
+}
+.gradient-tile.no-anim{transition:none!important}
+.gradient-tile .order-num{
+  position:absolute;bottom:6px;left:0;right:0;text-align:center;
+  font-size:12px;font-weight:800;color:rgba(255,255,255,.95);text-shadow:0 1px 3px rgba(0,0,0,.45);
+}
+
+/* ============ 找不同 ============ */
+.odd-board{
+  display:grid;gap:9px;background:#fff;border-radius:var(--radius);
+  padding:16px;box-shadow:var(--shadow);aspect-ratio:1;
+}
+.odd-tile{border-radius:15px;cursor:pointer;transition:.12s;box-shadow:inset 0 0 0 1px rgba(0,0,0,.05)}
+.odd-tile:active{transform:scale(.92)}
+.odd-tile.wrong{animation:shake .45s;box-shadow:inset 0 0 0 4px #ff3b5c,0 0 18px rgba(255,59,92,.6)}
+.odd-tile.right{animation:pop .4s}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+@keyframes pop{50%{transform:scale(1.15)}}
+/* 扣分反馈 */
+#app.penalty-flash::before{
+  content:"";position:fixed;inset:0;z-index:90;pointer-events:none;
+  background:rgba(255,40,70,.28);animation:flashRed .5s ease-out forwards;
+}
+@keyframes flashRed{0%{opacity:0}15%{opacity:1}100%{opacity:0}}
+.score-line b.penalty{color:#ff2d55!important;animation:scoreShake .5s}
+@keyframes scoreShake{0%,100%{transform:scale(1)}25%{transform:scale(1.5) rotate(-5deg)}50%{transform:scale(1.3) rotate(5deg)}75%{transform:scale(1.4) rotate(-3deg)}}
+.float-penalty{
+  position:fixed;z-index:120;color:#ff2d55;font-size:30px;font-weight:900;
+  text-shadow:0 2px 8px rgba(255,45,85,.5);pointer-events:none;
+  animation:floatUp .9s ease-out forwards;
+}
+@keyframes floatUp{0%{opacity:0;transform:translateY(0) scale(.6)}20%{opacity:1;transform:translateY(-10px) scale(1.2)}100%{opacity:0;transform:translateY(-70px) scale(1)}}
+
+/* ============ 记忆复刻 ============ */
+.memory-stage{
+  text-align:center;padding:14px 0;
+}
+.memory-label{font-size:14px;font-weight:800;color:var(--ink);margin-bottom:10px}
+.memory-label.showing{color:var(--pink);font-size:16px}
+.color-disc.big.showing{
+  box-shadow:0 0 0 6px rgba(255,94,122,.25),0 0 34px rgba(255,94,122,.5);
+  animation:memPulse 1s ease-in-out infinite;
+}
+@keyframes memPulse{50%{box-shadow:0 0 0 12px rgba(255,94,122,.12),0 0 44px rgba(255,94,122,.65)}}
+.memory-count{font-size:42px;font-weight:900;color:var(--pink);height:50px;line-height:50px}
+.memory-status{font-size:14px;font-weight:700;color:var(--primary);margin-top:6px;min-height:20px}
+.slider-panel.locked{opacity:.45;pointer-events:none;filter:grayscale(.6)}
+
+/* ============ 闯关 ============ */
+.quest-head{
+  background:linear-gradient(120deg,#7c6cf0,#5b4bd4);color:#fff;
+  border-radius:var(--radius);padding:18px;text-align:center;box-shadow:var(--shadow);
+}
+.quest-badge{font-size:12px;opacity:.85;font-weight:700}
+.quest-name{font-size:22px;font-weight:900;margin:4px 0}
+.quest-stars{font-size:13px;opacity:.9}
+.quest-progress{height:9px;background:#e6e2f8;border-radius:6px;margin:14px 0;overflow:hidden}
+.quest-progress div{height:100%;width:10%;background:linear-gradient(90deg,#ffd166,#ff8a5e);border-radius:6px;transition:width .4s}
+.quest-body{background:#fff;border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
+
+/* ============ 遮罩 / 弹窗 ============ */
+.overlay{
+  position:fixed;inset:0;z-index:100;display:none;
+  align-items:flex-end;justify-content:center;
+  background:rgba(30,22,70,.45);backdrop-filter:blur(3px);
+}
+.overlay.show{display:flex}
+.sheet{
+  width:100%;max-width:480px;background:#fff;border-radius:26px 26px 0 0;
+  padding:20px 20px 30px;animation:slideUp .25s ease;
+}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:none}}
+.sheet-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.sheet-head h3{margin:0;font-size:19px}
+.setting-list{display:flex;flex-direction:column;gap:6px}
+.setting-item{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:13px 4px;border-bottom:1px solid var(--line);cursor:pointer;
+}
+.setting-item span:first-child{display:flex;flex-direction:column;gap:3px}
+.setting-item b{font-size:15px}
+.setting-item small{font-size:11px;color:var(--ink2)}
+.setting-item input{display:none}
+.switch{
+  width:48px;height:28px;border-radius:15px;background:#d8d4e8;position:relative;transition:.2s;flex:none;
+}
+.switch::after{
+  content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;
+  background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.2);transition:.2s;
+}
+.setting-item input:checked + .switch{background:var(--primary)}
+.setting-item input:checked + .switch::after{transform:translateX(20px)}
+.setting-song{cursor:default}
+.song-picker{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end;max-width:210px}
+.song-picker button{
+  border:2px solid var(--line);background:#fff;color:var(--ink2);
+  border-radius:9px;padding:6px 8px;font-size:11px;font-weight:700;cursor:pointer;
+}
+.song-picker button.active{background:var(--primary);border-color:var(--primary);color:#fff}
+.file-btn{
+  display:inline-block;border:2px solid var(--primary);background:#fff;color:var(--primary);
+  border-radius:9px;padding:7px 11px;font-size:12px;font-weight:800;cursor:pointer;
+}
+.file-btn input{display:none}
+.setting-about{text-align:center;color:#a09db8;font-size:11px;margin:20px 0 4px;line-height:1.7}
+
+#result-overlay{align-items:center}
+.result-card{
+  width:calc(100% - 60px);max-width:360px;background:#fff;border-radius:26px;
+  padding:26px 20px 20px;text-align:center;animation:popIn .3s ease;
+}
+@keyframes popIn{from{transform:scale(.85);opacity:0}to{transform:none;opacity:1}}
+.stars{font-size:40px;letter-spacing:4px;min-height:48px;line-height:1}
+.stars span{display:inline-block;animation:starPop .4s backwards}
+@keyframes starPop{from{transform:scale(0) rotate(-40deg)}to{transform:none}}
+.result-card h3{margin:10px 0 5px;font-size:23px}
+.result-card p{margin:0 0 16px;color:var(--ink2);font-size:14px}
+.result-color-row{display:flex;justify-content:center;gap:30px;margin-bottom:20px}
+.result-color-row div{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;color:var(--ink2)}
+.result-color-row i{width:54px;height:54px;border-radius:50%;display:block;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+
+.toast{
+  position:fixed;bottom:40px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:rgba(45,42,74,.92);color:#fff;padding:11px 20px;border-radius:14px;
+  font-size:14px;z-index:200;opacity:0;pointer-events:none;transition:.25s;white-space:nowrap;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+</style>
+</head>
+<body>
+
+<!-- 顶部栏 -->
+<header class="topbar" id="topbar">
+  <button class="icon-btn" id="btn-back" title="返回">
+    <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+  <h1 id="page-title">色彩实验室</h1>
+  <button class="icon-btn" id="btn-settings" title="设置">
+    <svg viewBox="0 0 24 24"><path d="M12 15.5a3.5 3.5 0 100-7 3.5 3.5 0 000 7z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M19.4 15a1.7 1.7 0 00.34 1.88l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.7 1.7 0 00-1.88-.34 1.7 1.7 0 00-1.03 1.56V21a2 2 0 11-4 0v-.09A1.7 1.7 0 009 19.4a1.7 1.7 0 00-1.88.34l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.7 1.7 0 004.63 15a1.7 1.7 0 00-1.56-1.03H3a2 2 0 110-4h.09A1.7 1.7 0 004.6 9a1.7 1.7 0 00-.34-1.88l-.06-.06a2 2 0 112.83-2.83l.06.06A1.7 1.7 0 009 4.63a1.7 1.7 0 001.03-1.56V3a2 2 0 114 0v.09A1.7 1.7 0 0015 4.6a1.7 1.7 0 001.88-.34l.06-.06a2 2 0 112.83 2.83l-.06.06A1.7 1.7 0 0019.37 9v.09a1.7 1.7 0 001.56 1.03H21a2 2 0 110 4h-.09a1.7 1.7 0 00-1.51 1z" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+  </button>
+</header>
+
+<main id="app">
+
+  <!-- ============ 首页 ============ -->
+  <section class="page active" id="page-home">
+    <div class="hero">
+      <div class="hero-logo">
+        <svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="28" fill="#fff" opacity=".22"/><circle cx="24" cy="24" r="8" fill="#ff5e7a"/><circle cx="42" cy="22" r="8" fill="#ffd166"/><circle cx="32" cy="42" r="8" fill="#4dd8c0"/><circle cx="46" cy="42" r="5" fill="#7c8cff"/></svg>
+      </div>
+      <h2>色彩实验室</h2>
+      <p>玩转三原色，练就绝对色感</p>
+    </div>
+
+    <div class="menu-grid">
+      <button class="menu-card c1" data-go="mix">
+        <span class="menu-icon"><svg viewBox="0 0 24 24"><circle cx="9" cy="9" r="5" fill="#ff5e7a" opacity=".9"/><circle cx="15" cy="9" r="5" fill="#ffd166" opacity=".9"/><circle cx="12" cy="15" r="5" fill="#4dd8c0" opacity=".9"/></svg></span>
+        <span class="menu-name">调色挑战</span>
+        <span class="menu-desc">三原色混合 · 星级评分</span>
+      </button>
+      <button class="menu-card c2" data-go="gradient">
+        <span class="menu-icon"><svg viewBox="0 0 24 24"><rect x="3" y="14" width="5" height="6" rx="1.5" fill="#7c8cff"/><rect x="9.5" y="10" width="5" height="10" rx="1.5" fill="#9b7cff"/><rect x="16" y="5" width="5" height="15" rx="1.5" fill="#4dd8c0"/></svg></span>
+        <span class="menu-name">渐变排序</span>
+        <span class="menu-desc">按深浅排列 · 视觉比较</span>
+      </button>
+      <button class="menu-card c3" data-go="odd">
+        <span class="menu-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2" fill="#ff5e7a"/><rect x="14" y="3" width="7" height="7" rx="2" fill="#ff5e7a"/><rect x="3" y="14" width="7" height="7" rx="2" fill="#ff5e7a"/><rect x="14" y="14" width="7" height="7" rx="2" fill="#ffd166"/></svg></span>
+        <span class="menu-name">颜色找不同</span>
+        <span class="menu-desc">火眼金睛 · 专注训练</span>
+      </button>
+      <button class="menu-card c4" data-go="memory">
+        <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z" fill="none" stroke="#7c8cff" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="#7c8cff"/></svg></span>
+        <span class="menu-name">记忆复刻</span>
+        <span class="menu-desc">记住颜色 · 还原挑战</span>
+      </button>
+      <button class="menu-card c5 wide" data-go="quest">
+        <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M6 21V4m0 1h11l-2 4 2 4H6" fill="none" stroke="#ffb84d" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span class="menu-name">闯关模式</span>
+        <span class="menu-desc">四大玩法轮流上阵 · 逐关进阶</span>
+      </button>
+    </div>
+
+    <div class="home-stats">
+      <div><b id="stat-best">0</b><span>最高星数</span></div>
+      <div><b id="stat-level">1</b><span>闯关进度</span></div>
+      <div><b id="stat-games">0</b><span>游戏局数</span></div>
+    </div>
+    <p class="tip-line">每天玩一会儿，色彩感知和专注力都会变强</p>
+  </section>
+
+  <!-- ============ 调色挑战 ============ -->
+  <section class="page" id="page-mix">
+    <div class="game-bar">
+      <div class="diff-row" data-group="mix">
+        <span class="diff-label">难度</span>
+        <button class="diff-btn active" data-diff="easy">简单</button>
+        <button class="diff-btn" data-diff="normal">中等</button>
+        <button class="diff-btn" data-diff="hard">困难</button>
+      </div>
+      <div class="score-line">得分 <b id="mix-score">0</b> <i>·</i> 连击 <b id="mix-combo">0</b></div>
+    </div>
+
+    <div class="compare-area">
+      <div class="compare-item">
+        <div class="color-disc" id="target-disc"></div>
+        <small>目标色 · 照着它调</small>
+        <code id="target-rgb">RGB --,--,--</code>
+        <button class="mini-btn" id="btn-mix-hint">藏起目标挑战</button>
+      </div>
+      <div class="vs-mark">VS</div>
+      <div class="compare-item">
+        <div class="color-disc" id="mix-disc"></div>
+        <small>我的调色</small>
+        <code id="mix-hex">rgb(0,0,0)</code>
+      </div>
+    </div>
+
+    <div class="slider-panel" id="mix-sliders"></div>
+
+    <div class="action-row">
+      <button class="primary-btn" id="btn-mix-submit">提交调色</button>
+      <button class="ghost-btn" id="btn-mix-skip">换一个</button>
+    </div>
+  </section>
+
+  <!-- ============ 渐变排序 ============ -->
+  <section class="page" id="page-gradient">
+    <div class="game-bar">
+      <div class="diff-row" data-group="gradient">
+        <span class="diff-label">数量</span>
+        <button class="diff-btn active" data-diff="easy">5个</button>
+        <button class="diff-btn" data-diff="normal">7个</button>
+        <button class="diff-btn" data-diff="hard">9个</button>
+      </div>
+      <div class="score-line">得分 <b id="gradient-score">0</b> <i>·</i> 用时 <b id="gradient-time">0s</b></div>
+    </div>
+    <div class="instruction">按住色块<b>拖动</b>到想要的位置，其他色块会让开；把它们按<b>从浅到深</b>排好顺序</div>
+    <div class="gradient-board" id="gradient-board"></div>
+    <div class="action-row">
+      <button class="primary-btn" id="btn-gradient-check">检查排序</button>
+      <button class="ghost-btn" id="btn-gradient-new">重新打乱</button>
+    </div>
+  </section>
+
+  <!-- ============ 找不同 ============ -->
+  <section class="page" id="page-odd">
+    <div class="game-bar">
+      <div class="diff-row" data-group="odd">
+        <span class="diff-label">难度</span>
+        <button class="diff-btn active" data-diff="easy">简单</button>
+        <button class="diff-btn" data-diff="normal">中等</button>
+        <button class="diff-btn" data-diff="hard">困难</button>
+      </div>
+      <div class="score-line">得分 <b id="odd-score">0</b> <i>·</i> 剩余 <b id="odd-time">30s</b></div>
+    </div>
+    <div class="instruction">找出颜色<b>不一样</b>的那一块，点它！</div>
+    <div class="odd-board" id="odd-board"></div>
+    <div class="action-row">
+      <button class="ghost-btn full" id="btn-odd-new">换一局</button>
+    </div>
+  </section>
+
+  <!-- ============ 记忆复刻 ============ -->
+  <section class="page" id="page-memory">
+    <div class="game-bar">
+      <div class="diff-row" data-group="memory">
+        <span class="diff-label">难度</span>
+        <button class="diff-btn active" data-diff="easy">3秒</button>
+        <button class="diff-btn" data-diff="normal">2秒</button>
+        <button class="diff-btn" data-diff="hard">1秒</button>
+      </div>
+      <div class="score-line">得分 <b id="memory-score">0</b> <i>·</i> 连击 <b id="memory-combo">0</b></div>
+    </div>
+
+    <div class="memory-stage">
+      <div class="memory-label" id="memory-label">先看清这个颜色</div>
+      <div class="color-disc big" id="memory-disc"><span class="disc-question">?</span></div>
+      <div class="memory-count" id="memory-count"></div>
+      <div class="memory-status" id="memory-status">点击下方按钮开始，记住出现的颜色</div>
+    </div>
+
+    <div class="slider-panel" id="memory-sliders"></div>
+
+    <div class="action-row">
+      <button class="primary-btn" id="btn-memory-start">开始记忆</button>
+      <button class="ghost-btn" id="btn-memory-submit">确认还原</button>
+    </div>
+  </section>
+
+  <!-- ============ 闯关模式 ============ -->
+  <section class="page" id="page-quest">
+    <div class="quest-head">
+      <div class="quest-badge" id="quest-level">第 1 关</div>
+      <div class="quest-name" id="quest-name">调色挑战</div>
+      <div class="quest-stars" id="quest-stars">累计 0 星</div>
+    </div>
+    <div class="quest-progress"><div id="quest-progress-bar"></div></div>
+    <div class="quest-body" id="quest-body"></div>
+    <div class="action-row">
+      <button class="primary-btn" id="btn-quest-submit">提交</button>
+      <button class="ghost-btn" id="btn-quest-quit">退出闯关</button>
+    </div>
+  </section>
+
+</main>
+
+<!-- ============ 设置面板 ============ -->
+<div class="overlay" id="settings-overlay">
+  <div class="sheet">
+    <div class="sheet-head">
+      <h3>设置</h3>
+      <button class="icon-btn" id="btn-close-settings">
+        <svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div class="setting-list">
+      <label class="setting-item">
+        <span><b>背景音乐</b><small>轻柔循环，原创合成</small></span>
+        <input type="checkbox" id="set-music" checked><span class="switch"></span>
+      </label>
+      <div class="setting-item setting-song">
+        <span><b>音乐曲目</b><small>选一首你喜欢的风格</small></span>
+        <div class="song-picker">
+          <button data-song="0" class="active">晨光冒险</button>
+          <button data-song="1">糖果乐园</button>
+          <button data-song="2">星空航行</button>
+        </div>
+      </div>
+      <div class="setting-item setting-song">
+        <span><b>我的音乐</b><small>导入手机里的音乐，替换内置背景音乐</small></span>
+        <label class="file-btn">选择音乐<input type="file" id="set-custom-music" accept="audio/*"></label>
+      </div>
+      <div class="setting-item setting-song">
+        <span><b>恢复内置音乐</b><small>回到原创合成音乐</small></span>
+        <button class="mini-btn" id="btn-clear-music">恢复</button>
+      </div>
+      <label class="setting-item">
+        <span><b>游戏音效</b><small>点击、答对、答错提示音</small></span>
+        <input type="checkbox" id="set-sound" checked><span class="switch"></span>
+      </label>
+      <label class="setting-item">
+        <span><b>震动反馈</b><small>需要手机支持震动</small></span>
+        <input type="checkbox" id="set-vibrate" checked><span class="switch"></span>
+      </label>
+      <label class="setting-item">
+        <span><b>语音提示</b><small>朗读题目与结果</small></span>
+        <input type="checkbox" id="set-speech" checked><span class="switch"></span>
+      </label>
+    </div>
+    <div class="setting-about">
+      <p>色彩实验室 v1.0 · 原创界面设计</p>
+      <p>背景音乐与音效均由程序实时合成，无第三方版权素材</p>
+    </div>
+    <button class="text-btn danger" id="btn-reset-data">清除所有成绩记录</button>
+  </div>
+</div>
+
+<!-- ============ 结果弹窗 ============ -->
+<div class="overlay" id="result-overlay">
+  <div class="result-card">
+    <div class="stars" id="result-stars"></div>
+    <h3 id="result-title">太棒了！</h3>
+    <p id="result-detail">颜色非常接近</p>
+    <div class="result-color-row">
+      <div><span>目标</span><i id="result-target"></i></div>
+      <div><span>你的</span><i id="result-mine"></i></div>
+    </div>
+    <button class="primary-btn full" id="btn-result-next">继续挑战</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="capacitor.js"></script>
+<script>
+/* ============ 音频引擎 v3 ============
+   柔和冒险风原创音乐：主旋律(三角波+正弦泛音) + 拨弦琶音 + 贝斯 + 轻鼓
+   三首曲目可切换，带轻微延迟混响，音色不刺耳
+   全部由 Web Audio API 实时合成，无任何第三方版权素材
+   ================================= */
+(function (global) {
+  'use strict';
+
+  function noteFreq(name) {
+    if (!name) return 0;
+    const m = /^([A-G])(#|b)?(\d)$/.exec(name);
+    if (!m) return 0;
+    const base = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 }[m[1]];
+    let semi = base + (m[2] === '#' ? 1 : m[2] === 'b' ? -1 : 0);
+    const midi = (parseInt(m[3], 10) + 1) * 12 + semi;
+    return 440 * Math.pow(2, (midi - 69) / 12);
+  }
+
+  /* 每首曲子 8 小节 × 16 步 = 128 步。melody: [起始步, 音名, 持续步数] */
+  const SONGS = [
+    {
+      name: '晨光冒险', bpm: 122,
+      chords: [
+        ['C4','E4','G4'], ['A3','C4','E4'], ['F3','A3','C4'], ['G3','B3','D4'],
+        ['C4','E4','G4'], ['F3','A3','C4'], ['A3','C4','E4'], ['G3','B3','D4']
+      ],
+      bass: ['C3','A2','F2','G2','C3','F2','A2','G2'],
+      melody: [
+        [0,'C5',2],[2,'E5',2],[4,'G5',4],[8,'E5',2],[10,'G5',2],[12,'A5',4],
+        [16,'G5',2],[18,'E5',2],[20,'D5',4],[24,'E5',2],[26,'G5',2],[28,'C5',4],
+        [32,'F5',2],[34,'A5',2],[36,'G5',4],[40,'E5',2],[42,'F5',2],[44,'G5',4],
+        [48,'A5',2],[50,'G5',2],[52,'E5',4],[56,'D5',2],[58,'E5',2],[60,'G5',4],
+        [64,'C5',2],[66,'E5',2],[68,'G5',4],[72,'C6',4],[76,'G5',4],
+        [80,'A5',2],[82,'G5',2],[84,'F5',4],[88,'E5',2],[90,'G5',2],[92,'E5',4],
+        [96,'D5',2],[98,'F5',2],[100,'A5',4],[104,'G5',2],[106,'E5',2],[108,'D5',4],
+        [112,'E5',2],[114,'G5',2],[116,'C6',4],[120,'G5',4],[124,'E5',4]
+      ]
+    },
+    {
+      name: '糖果乐园', bpm: 106,
+      chords: [
+        ['F4','A4','C5'], ['D4','F4','A4'], ['A#3','D4','F4'], ['C4','E4','G4'],
+        ['F4','A4','C5'], ['A#3','D4','F4'], ['D4','F4','A4'], ['C4','E4','G4']
+      ],
+      bass: ['F2','D2','A#2','C2','F2','A#2','D2','C2'],
+      melody: [
+        [0,'F5',2],[2,'A5',2],[4,'C6',4],[8,'A5',2],[10,'F5',2],[12,'G5',4],
+        [16,'A5',2],[18,'C6',2],[20,'D6',4],[24,'C6',2],[26,'A5',2],[28,'F5',4],
+        [32,'G5',2],[34,'A5',2],[36,'C6',4],[40,'A5',2],[42,'G5',2],[44,'F5',4],
+        [48,'E5',2],[50,'G5',2],[52,'A5',4],[56,'G5',2],[58,'E5',2],[60,'D5',4],
+        [64,'F5',2],[66,'A5',2],[68,'C6',4],[72,'F6',4],[76,'C6',4],
+        [80,'D6',2],[82,'C6',2],[84,'A5',4],[88,'G5',2],[90,'A5',2],[92,'C6',4],
+        [96,'A5',2],[98,'G5',2],[100,'F5',4],[104,'A5',2],[106,'C6',2],[108,'A5',4],
+        [112,'G5',2],[114,'A5',2],[116,'F5',4],[120,'C5',4],[124,'F5',4]
+      ]
+    },
+    {
+      name: '星空航行', bpm: 114,
+      chords: [
+        ['A3','C4','E4'], ['C4','E4','G4'], ['F3','A3','C4'], ['G3','B3','D4'],
+        ['A3','C4','E4'], ['F3','A3','C4'], ['C4','E4','G4'], ['G3','B3','D4']
+      ],
+      bass: ['A2','C2','F2','G2','A2','F2','C2','G2'],
+      melody: [
+        [0,'A4',4],[4,'C5',2],[6,'E5',2],[8,'G5',4],[12,'E5',4],
+        [16,'D5',2],[18,'E5',2],[20,'G5',4],[24,'A5',4],[28,'G5',4],
+        [32,'E5',2],[34,'G5',2],[36,'A5',4],[40,'C6',4],[44,'A5',4],
+        [48,'G5',2],[50,'E5',2],[52,'D5',4],[56,'E5',4],[60,'G5',4],
+        [64,'A4',4],[68,'C5',2],[70,'E5',2],[72,'A5',4],[76,'E5',4],
+        [80,'F5',2],[82,'G5',2],[84,'A5',4],[88,'G5',2],[90,'E5',2],[92,'D5',4],
+        [96,'C5',2],[98,'E5',2],[100,'G5',4],[104,'E5',2],[106,'D5',2],[108,'C5',4],
+        [112,'E5',2],[114,'G5',2],[116,'A5',4],[120,'E5',4],[124,'A4',4]
+      ]
+    }
+  ];
+  const LOOP_STEPS = 128;
+
+  class AudioEngine {
+    constructor() {
+      this.ctx = null;
+      this.master = null;
+      this.musicGain = null;
+      this.sfxGain = null;
+      this.musicOn = true;
+      this.soundOn = true;
+      this.vibrateOn = true;
+      this.speechOn = true;
+      this.musicTimer = null;
+      this.step = 0;
+      this.nextNoteTime = 0;
+      this.songIndex = 0;
+      this.loops = 0;
+      this.noiseBuf = null;
+      this.customMode = false;
+      this.customAudio = null;
+    }
+
+    init() {
+      if (this.ctx) {
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+        return;
+      }
+      const AC = global.AudioContext || global.webkitAudioContext;
+      if (!AC) return;
+      this.ctx = new AC();
+      this.master = this.ctx.createGain();
+      this.master.gain.value = 0.85;
+      this.master.connect(this.ctx.destination);
+
+      this.musicGain = this.ctx.createGain();
+      this.musicGain.gain.value = this.musicOn ? 0.7 : 0;
+      this.musicGain.connect(this.master);
+
+      this.sfxGain = this.ctx.createGain();
+      this.sfxGain.gain.value = this.soundOn ? 0.5 : 0;
+      this.sfxGain.connect(this.master);
+
+      // 轻微延迟混响，让声音不干涩
+      const delay = this.ctx.createDelay(1.0);
+      delay.delayTime.value = 0.21;
+      const fb = this.ctx.createGain(); fb.gain.value = 0.2;
+      const wet = this.ctx.createGain(); wet.gain.value = 0.16;
+      const lp = this.ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2400;
+      this.musicGain.connect(delay);
+      delay.connect(lp); lp.connect(fb); fb.connect(delay);
+      lp.connect(wet); wet.connect(this.master);
+
+      const len = Math.floor(this.ctx.sampleRate * 0.3);
+      this.noiseBuf = this.ctx.createBuffer(1, len, this.ctx.sampleRate);
+      const d = this.noiseBuf.getChannelData(0);
+      for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+    }
+
+    /* 柔和音符：三角波主音 + 正弦八度泛音，带低通 */
+    tone(freq, dur, opts) {
+      if (!this.ctx || !freq) return;
+      opts = opts || {};
+      const t = opts.when || this.ctx.currentTime;
+      const bus = opts.bus || this.sfxGain;
+      const g = this.ctx.createGain();
+      const vol = opts.vol == null ? 0.15 : opts.vol;
+      const atk = opts.attack == null ? 0.02 : opts.attack;
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(vol, t + atk);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+
+      const lp = this.ctx.createBiquadFilter();
+      lp.type = 'lowpass';
+      lp.frequency.value = opts.cutoff || 2600;
+      g.connect(lp); lp.connect(bus);
+
+      const osc = this.ctx.createOscillator();
+      osc.type = opts.type || 'triangle';
+      osc.frequency.setValueAtTime(freq, t);
+      if (opts.slideTo) osc.frequency.exponentialRampToValueAtTime(opts.slideTo, t + dur);
+      osc.connect(g);
+      osc.start(t); osc.stop(t + dur + 0.04);
+
+      if (opts.harmony) {
+        const o2 = this.ctx.createOscillator();
+        const g2 = this.ctx.createGain();
+        o2.type = 'sine';
+        o2.frequency.setValueAtTime(freq * (opts.harmonyRatio || 2), t);
+        g2.gain.setValueAtTime(vol * opts.harmony, t);
+        g2.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+        o2.connect(g2); g2.connect(lp);
+        o2.start(t); o2.stop(t + dur + 0.04);
+      }
+    }
+
+    noise(dur, opts) {
+      if (!this.ctx || !this.noiseBuf) return;
+      opts = opts || {};
+      const t = opts.when || this.ctx.currentTime;
+      const src = this.ctx.createBufferSource();
+      src.buffer = this.noiseBuf;
+      const filter = this.ctx.createBiquadFilter();
+      filter.type = opts.filter || 'highpass';
+      filter.frequency.value = opts.freq || 3000;
+      const g = this.ctx.createGain();
+      g.gain.setValueAtTime(opts.vol == null ? 0.08 : opts.vol, t);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      src.connect(filter); filter.connect(g); g.connect(opts.bus || this.sfxGain);
+      src.start(t); src.stop(t + dur + 0.02);
+    }
+
+    kick(t, vol) {
+      if (!this.ctx) return;
+      const osc = this.ctx.createOscillator();
+      const g = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(120, t);
+      osc.frequency.exponentialRampToValueAtTime(45, t + 0.12);
+      g.gain.setValueAtTime(vol || 0.16, t);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.14);
+      osc.connect(g); g.connect(this.musicGain);
+      osc.start(t); osc.stop(t + 0.16);
+    }
+
+    setSong(i) {
+      this.clearCustomMusic();
+      this.songIndex = ((i % SONGS.length) + SONGS.length) % SONGS.length;
+      this.step = 0; this.loops = 0;
+      if (this.ctx) this.nextNoteTime = this.ctx.currentTime + 0.1;
+    }
+    getSongName() { return this.customMode ? '我的音乐' : SONGS[this.songIndex].name; }
+
+    /* 导入用户自己的音乐（零版权问题），替代内置合成音乐 */
+    setCustomMusic(url) {
+      this.stopMusic();
+      if (!this.customAudio) {
+        this.customAudio = new Audio();
+        this.customAudio.loop = true;
+        this.customAudio.volume = 0.55;
+      }
+      this.customAudio.src = url;
+      this.customMode = true;
+      if (this.musicOn) this.customAudio.play().catch(() => {});
+    }
+    clearCustomMusic() {
+      if (this.customAudio) { this.customAudio.pause(); this.customAudio.src = ''; }
+      this.customMode = false;
+    }
+
+    startMusic() {
+      if (!this.ctx || this.musicTimer || this.customMode) return;
+      this.nextNoteTime = this.ctx.currentTime + 0.1;
+      const schedule = () => {
+        if (!this.ctx) return;
+        const song = SONGS[this.songIndex];
+        const stepDur = 60 / song.bpm / 4;
+        while (this.nextNoteTime < this.ctx.currentTime + 0.18) {
+          this.scheduleStep(this.step, this.nextNoteTime, song, stepDur);
+          this.nextNoteTime += stepDur;
+          this.step++;
+          if (this.step >= LOOP_STEPS) {
+            this.step = 0; this.loops++;
+            if (this.loops >= 2) { this.loops = 0; this.songIndex = (this.songIndex + 1) % SONGS.length; }
+          }
+        }
+      };
+      schedule();
+      this.musicTimer = setInterval(schedule, 45);
+    }
+
+    stopMusic() {
+      if (this.musicTimer) { clearInterval(this.musicTimer); this.musicTimer = null; }
+    }
+
+    scheduleStep(step, t, song, stepDur) {
+      const bus = this.musicGain;
+      const bar = Math.floor(step / 16);
+      const inBar = step % 16;
+      const chord = song.chords[bar];
+
+      // 主旋律：柔和三角波 + 一点正弦泛音
+      for (const ev of song.melody) {
+        if (ev[0] === step) {
+          this.tone(noteFreq(ev[1]), stepDur * ev[2] * 0.92,
+            { type: 'triangle', vol: 0.11, harmony: 0.22, when: t, bus, cutoff: 2800, attack: 0.025 });
+        }
+      }
+      // 拨弦琶音：每两拍一个，轻快但不吵
+      if (inBar % 2 === 0) {
+        const idx = [0,1,2,1,0,2,1,2][(inBar / 2) % 8];
+        this.tone(noteFreq(chord[idx]), stepDur * 1.4,
+          { type: 'sine', vol: 0.055, when: t, bus, cutoff: 3200, attack: 0.006 });
+      }
+      // 贝斯
+      if (inBar % 4 === 0) {
+        this.tone(noteFreq(song.bass[bar]), stepDur * 3.4,
+          { type: 'triangle', vol: 0.085, when: t, bus, cutoff: 700, attack: 0.015 });
+      }
+      // 很轻的鼓点
+      if (inBar === 0 || inBar === 8) this.kick(t, 0.13);
+      if (inBar === 4 || inBar === 12) this.noise(0.08, { filter: 'bandpass', freq: 1500, vol: 0.05, when: t, bus });
+      if (inBar % 4 === 2) this.noise(0.02, { filter: 'highpass', freq: 8000, vol: 0.018, when: t, bus });
+    }
+
+    /* ---- 音效 ---- */
+    sfx(name) {
+      if (!this.ctx) return;
+      const t = this.ctx.currentTime;
+      switch (name) {
+        case 'click':
+          this.tone(740, 0.07, { type: 'triangle', vol: 0.12 }); break;
+        case 'slide':
+          this.tone(520, 0.035, { type: 'sine', vol: 0.035 }); break;
+        case 'correct':
+          [523.25, 659.25, 783.99].forEach((f, i) =>
+            this.tone(f, 0.2, { type: 'triangle', vol: 0.13, harmony: 0.2, when: t + i * 0.085 })); break;
+        case 'wrong':
+          this.tone(300, 0.22, { type: 'triangle', vol: 0.13, slideTo: 150 }); break;
+        case 'penalty':
+          this.tone(420, 0.42, { type: 'sawtooth', vol: 0.14, slideTo: 90, cutoff: 1600 });
+          this.tone(210, 0.45, { type: 'square', vol: 0.08, slideTo: 70, cutoff: 900 });
+          this.noise(0.25, { filter: 'lowpass', freq: 900, vol: 0.11 }); break;
+        case 'star':
+          this.tone(1046.5, 0.13, { type: 'triangle', vol: 0.12 });
+          this.tone(1567.98, 0.18, { type: 'triangle', vol: 0.09, when: t + 0.06 }); break;
+        case 'flash':
+          this.tone(880, 0.11, { type: 'sine', vol: 0.1 }); break;
+        case 'levelup':
+          [523.25, 659.25, 783.99, 1046.5, 1318.5].forEach((f, i) =>
+            this.tone(f, 0.19, { type: 'triangle', vol: 0.12, when: t + i * 0.085 })); break;
+        case 'swap':
+          this.tone(600, 0.06, { type: 'sine', vol: 0.055 }); break;
+      }
+    }
+
+    vibrate(pattern) {
+      if (!this.vibrateOn) return;
+      const name = typeof pattern === 'string' ? pattern : 'tap';
+      // APK 中优先走原生震动（Capacitor 插件），稳定可靠
+      const NV = global.NativeVibrator;
+      if (NV && typeof NV.vibrate === 'function') {
+        NV.vibrate({ pattern: name }).catch(() => {});
+        return;
+      }
+      if (!navigator.vibrate) return;
+      const presets = {
+        tap: 18, step: 10,
+        success: [40, 35, 70],
+        fail: [110, 60, 110, 60, 180],
+        penalty: [140, 55, 140, 55, 260],
+        star: 28,
+        level: [45, 45, 45, 45, 180]
+      };
+      try { navigator.vibrate(presets[name] || presets.tap); } catch (e) {}
+    }
+
+    speak(text) {
+      if (!this.speechOn || !global.speechSynthesis) return;
+      global.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = 'zh-CN'; u.rate = 0.95; u.pitch = 1.1;
+      global.speechSynthesis.speak(u);
+    }
+
+    applySettings(s) {
+      this.musicOn = s.music; this.soundOn = s.sound;
+      this.vibrateOn = s.vibrate; this.speechOn = s.speech;
+      if (typeof s.song === 'number') this.setSong(s.song);
+      if (this.musicGain) this.musicGain.gain.setTargetAtTime(s.music ? 0.7 : 0, this.ctx.currentTime, 0.1);
+      if (this.sfxGain) this.sfxGain.gain.setTargetAtTime(s.sound ? 0.5 : 0, this.ctx.currentTime, 0.1);
+      if (this.customAudio) {
+        if (s.music && this.customMode) this.customAudio.play().catch(() => {});
+        else this.customAudio.pause();
+      }
+      if (s.music) this.startMusic(); else this.stopMusic();
+    }
+  }
+
+  global.AudioEngine = AudioEngine;
+})(window);
+
+</script>
+<script>
+/* ============ 色彩实验室 · 主程序 ============ */
+(function () {
+  'use strict';
+
+  const A = new AudioEngine();
+  const $ = (id) => document.getElementById(id);
+  const $$ = (sel, root) => Array.from((root || document).querySelectorAll(sel));
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const rand = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
+  const shuffle = (arr) => { for (let i = arr.length - 1; i > 0; i--) { const j = rand(0, i);[arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; };
+
+  /* ---------- 持久化 ---------- */
+  const DEFAULTS = {
+    settings: { music: true, sound: true, vibrate: true, speech: true, song: 0 },
+    stats: { best: 0, level: 1, games: 0, totalStars: 0 }
+  };
+  function load() {
+    try {
+      const s = JSON.parse(localStorage.getItem('colorlab_state') || '{}');
+      return {
+        settings: Object.assign({}, DEFAULTS.settings, s.settings || {}),
+        stats: Object.assign({}, DEFAULTS.stats, s.stats || {})
+      };
+    } catch (e) { return JSON.parse(JSON.stringify(DEFAULTS)); }
+  }
+  let S = load();
+  function save() { localStorage.setItem('colorlab_state', JSON.stringify(S)); }
+
+  /* ---------- 色彩算法 ---------- */
+  function rgb(a) { return `rgb(${a[0]},${a[1]},${a[2]})`; }
+  function hex(a) { return '#' + a.map(v => clamp(Math.round(v), 0, 255).toString(16).padStart(2, '0')).join('').toUpperCase(); }
+  function lin(c) { c /= 255; return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); }
+  function rgbToLab(c) {
+    const R = lin(c[0]), G = lin(c[1]), B = lin(c[2]);
+    let X = (R * 0.4124 + G * 0.3576 + B * 0.1805) / 0.95047;
+    let Y = (R * 0.2126 + G * 0.7152 + B * 0.0722);
+    let Z = (R * 0.0193 + G * 0.1192 + B * 0.9505) / 1.08883;
+    const f = t => t > 0.008856 ? Math.cbrt(t) : (7.787 * t + 16 / 116);
+    const fx = f(X), fy = f(Y), fz = f(Z);
+    return [116 * fy - 16, 500 * (fx - fy), 200 * (fy - fz)];
+  }
+  function deltaE(a, b) {
+    const x = rgbToLab(a), y = rgbToLab(b);
+    return Math.sqrt((x[0] - y[0]) ** 2 + (x[1] - y[1]) ** 2 + (x[2] - y[2]) ** 2);
+  }
+  function calcStars(d) {
+    if (d < 3) return 6;
+    if (d < 6) return 5;
+    if (d < 10) return 4;
+    if (d < 16) return 3;
+    if (d < 25) return 2;
+    return 1;
+  }
+  function genTarget(diff) {
+    const pool = diff === 'easy' ? [0, 128, 255] : diff === 'normal' ? [0, 32, 64, 96, 128, 160, 192, 224, 255] : null;
+    return [0, 1, 2].map(() => pool ? pool[rand(0, pool.length - 1)] : rand(0, 255));
+  }
+
+  /* ---------- 通用 UI ---------- */
+  let toastTimer;
+  function toast(msg) {
+    const el = $('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 1800);
+  }
+  /* 扣分强反馈：红闪 + 分数抖动变红 + 飘字 + 强音效 + 强震动 */
+  function penaltyFeedback(scoreEl, amount) {
+    const app = $('app');
+    app.classList.remove('penalty-flash');
+    void app.offsetWidth;
+    app.classList.add('penalty-flash');
+    setTimeout(() => app.classList.remove('penalty-flash'), 520);
+    scoreEl.classList.remove('penalty');
+    void scoreEl.offsetWidth;
+    scoreEl.classList.add('penalty');
+    setTimeout(() => scoreEl.classList.remove('penalty'), 520);
+    const r = scoreEl.getBoundingClientRect();
+    const f = document.createElement('div');
+    f.className = 'float-penalty';
+    f.textContent = '-' + amount;
+    f.style.left = (r.left + r.width / 2 - 18) + 'px';
+    f.style.top = (r.top - 6) + 'px';
+    document.body.appendChild(f);
+    setTimeout(() => f.remove(), 950);
+    A.sfx('penalty');
+    A.vibrate('penalty');
+  }
+  let resultNext = null;
+  function showResult(o) {
+    $('result-stars').innerHTML = '';
+    for (let i = 0; i < o.stars; i++) {
+      const s = document.createElement('span');
+      s.textContent = '★';
+      s.style.color = '#ffc94d';
+      s.style.animationDelay = (i * 0.09) + 's';
+      $('result-stars').appendChild(s);
+    }
+    for (let i = o.stars; i < 6; i++) {
+      const s = document.createElement('span');
+      s.textContent = '☆';
+      s.style.color = '#ddd8ef';
+      $('result-stars').appendChild(s);
+    }
+    $('result-title').textContent = o.title;
+    $('result-detail').textContent = o.detail;
+    $('result-target').style.background = rgb(o.target);
+    $('result-mine').style.background = rgb(o.mine);
+    $('btn-result-next').textContent = o.nextText || '继续挑战';
+    resultNext = o.onNext;
+    $('result-overlay').classList.add('show');
+    if (o.stars >= 5) { A.sfx('star'); A.vibrate('star'); }
+  }
+  $('btn-result-next').addEventListener('click', () => {
+    $('result-overlay').classList.remove('show');
+    if (resultNext) { const fn = resultNext; resultNext = null; fn(); }
+  });
+  $('result-overlay').addEventListener('click', e => {
+    if (e.target === $('result-overlay')) {
+      $('result-overlay').classList.remove('show');
+      if (resultNext) { const fn = resultNext; resultNext = null; fn(); }
+    }
+  });
+
+  /* ---------- 页面导航 ---------- */
+  const TITLES = { home: '色彩实验室', mix: '调色挑战', gradient: '渐变排序', odd: '颜色找不同', memory: '记忆复刻', quest: '闯关模式' };
+  let current = 'home';
+  function go(page) {
+    if (current === 'quest' && page !== 'quest') questCleanup();
+    $$('.page').forEach(p => p.classList.remove('active'));
+    $('page-' + page).classList.add('active');
+    $('page-title').textContent = TITLES[page];
+    $('btn-back').classList.toggle('show', page !== 'home');
+    current = page;
+    A.sfx('click');
+    if (page === 'mix') newMixTarget();
+    if (page === 'gradient') newGradient();
+    if (page === 'odd') newOdd();
+    if (page === 'memory') resetMemory();
+    if (page === 'home') refreshHome();
+  }
+  $('btn-back').addEventListener('click', () => go('home'));
+  $$('.menu-card').forEach(c => c.addEventListener('click', () => {
+    A.init(); A.startMusic();
+    if (c.dataset.go === 'quest') startQuest(); else go(c.dataset.go);
+  }));
+
+  /* ---------- 精细推杆组件 ---------- */
+  const CHANNELS = [
+    { key: 'r', label: 'R 红', cls: 'r' },
+    { key: 'g', label: 'G 绿', cls: 'g' },
+    { key: 'b', label: 'B 蓝', cls: 'b' }
+  ];
+  /* 竖向推杆：整条轨道都能点按/拖动，下面四个大按钮微调 */
+  function createSliders(container, initial, onChange) {
+    container.innerHTML = '';
+    const vals = { r: initial[0], g: initial[1], b: initial[2] };
+    const rows = {};
+    CHANNELS.forEach(ch => {
+      const row = document.createElement('div');
+      row.className = 'fader';
+      row.innerHTML = `
+        <div class="fader-lab"><i class="channel-dot ${ch.cls}"></i><b>${ch.label}</b></div>
+        <div class="fader-track ${ch.cls}">
+          <div class="fader-fill"></div>
+          <div class="fader-thumb"></div>
+        </div>
+        <input type="number" class="num-input fader-num" min="0" max="255" value="${vals[ch.key]}">
+        <div class="fader-btns">
+          <button class="step-btn" data-step="-10">−10</button>
+          <button class="step-btn" data-step="-1">−1</button>
+          <button class="step-btn" data-step="1">+1</button>
+          <button class="step-btn" data-step="10">+10</button>
+        </div>`;
+      container.appendChild(row);
+      const track = row.querySelector('.fader-track');
+      const fill = row.querySelector('.fader-fill');
+      const thumb = row.querySelector('.fader-thumb');
+      const num = row.querySelector('.fader-num');
+      rows[ch.key] = { fill, thumb, num };
+
+      const render = () => {
+        const p = vals[ch.key] / 255 * 100;
+        fill.style.height = p + '%';
+        thumb.style.bottom = p + '%';
+        num.value = vals[ch.key];
+      };
+      const set = (v, silent) => {
+        const before = vals[ch.key];
+        vals[ch.key] = clamp(Math.round(v), 0, 255);
+        render();
+        if (vals[ch.key] !== before && !silent) A.sfx('slide');
+        onChange([vals.r, vals.g, vals.b]);
+      };
+      rows[ch.key].set = set;
+
+      // 点按轨道任意位置 / 按住上下拖动
+      let dragging = false, lastVib = 0, onMove = null, onUp = null;
+      const fromY = (clientY, silent) => {
+        const r = track.getBoundingClientRect();
+        set((1 - (clientY - r.top) / r.height) * 255, silent);
+      };
+      track.addEventListener('pointerdown', e => {
+        e.preventDefault();
+        dragging = true;
+        fromY(e.clientY, true);
+        A.vibrate('tap');
+        onMove = ev => {
+          if (!dragging) return;
+          const before = vals[ch.key];
+          fromY(ev.clientY, true);
+          if (Math.abs(vals[ch.key] - before) >= 6 && Date.now() - lastVib > 55) {
+            A.vibrate('step'); lastVib = Date.now();
+          }
+        };
+        onUp = () => {
+          dragging = false;
+          document.removeEventListener('pointermove', onMove);
+          document.removeEventListener('pointerup', onUp);
+          document.removeEventListener('pointercancel', onUp);
+        };
+        document.addEventListener('pointermove', onMove);
+        document.addEventListener('pointerup', onUp);
+        document.addEventListener('pointercancel', onUp);
+      });
+
+      num.addEventListener('change', () => set(parseFloat(num.value) || 0, true));
+
+      // 微调按钮：点一下动一下，长按连续动
+      $$('.step-btn', row).forEach(btn => {
+        let timer, repeat;
+        const step = +btn.dataset.step;
+        const doStep = () => set(vals[ch.key] + step, true);
+        btn.addEventListener('pointerdown', e => {
+          e.preventDefault();
+          btn._lp = Date.now();
+          doStep(); A.vibrate('step');
+          clearTimeout(timer); clearInterval(repeat);
+          timer = setTimeout(() => { repeat = setInterval(doStep, 85); }, 400);
+        });
+        ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev =>
+          btn.addEventListener(ev, () => { clearTimeout(timer); clearInterval(repeat); }));
+        btn.addEventListener('click', () => { if (Date.now() - (btn._lp || 0) > 450) doStep(); });
+      });
+      render();
+    });
+    return {
+      get: () => [vals.r, vals.g, vals.b],
+      set: (arr, silent) => {
+        arr.forEach((v, i) => { rows[CHANNELS[i].key].set(v, true); });
+        if (!silent) onChange([vals.r, vals.g, vals.b]);
+      }
+    };
+  }
+
+  /* ================= 玩法一：调色挑战 ================= */
+  const M = { target: [0, 0, 0], ctrl: null, score: 0, combo: 0, diff: 'easy', hidden: false, locked: false };
+  function paintTarget() {
+    if (M.hidden) {
+      $('target-disc').style.background = '#ece9f7';
+      $('target-disc').innerHTML = '<span class="disc-question">?</span>';
+      $('target-rgb').textContent = '目标已隐藏';
+    } else {
+      $('target-disc').style.background = rgb(M.target);
+      $('target-disc').innerHTML = '';
+      $('target-rgb').textContent = `RGB ${M.target.join(',')}`;
+    }
+  }
+  function newMixTarget() {
+    M.target = genTarget(M.diff);
+    M.hidden = false; M.locked = false;
+    $('btn-mix-hint').textContent = '藏起目标挑战';
+    if (!M.ctrl) {
+      M.ctrl = createSliders($('mix-sliders'), [128, 128, 128], updateMixPreview);
+    } else { M.ctrl.set([128, 128, 128]); }
+    updateMixPreview(M.ctrl.get());
+    paintTarget();
+  }
+  function updateMixPreview(v) {
+    $('mix-disc').style.background = rgb(v);
+    $('mix-hex').textContent = `rgb(${v[0]},${v[1]},${v[2]})`;
+  }
+  // 切换「藏起目标」高难度模式：只藏目标色，绝不自动填配方
+  $('btn-mix-hint').addEventListener('click', () => {
+    M.hidden = !M.hidden;
+    $('btn-mix-hint').textContent = M.hidden ? '显示目标色' : '藏起目标挑战';
+    paintTarget();
+    A.sfx('click'); A.vibrate('tap');
+    toast(M.hidden ? '目标色已藏起，靠记忆和色感挑战' : '目标色已显示');
+  });
+  $('btn-mix-skip').addEventListener('click', () => { A.sfx('click'); newMixTarget(); });
+  $('btn-mix-submit').addEventListener('click', () => {
+    if (M.locked) return;
+    M.locked = true;
+    const mine = M.ctrl.get();
+    const d = deltaE(mine, M.target);
+    const stars = calcStars(d);
+    const gain = stars * 10 + M.combo * 2;
+    M.score += gain; M.combo = stars >= 4 ? M.combo + 1 : 0;
+    $('mix-score').textContent = M.score;
+    $('mix-combo').textContent = M.combo;
+    S.stats.games++; save();
+    A.sfx('correct'); A.vibrate('success');
+    const titles = ['再接再厉', '不错哦', '有进步', '很接近了', '非常棒！', '色感大师！', '完美匹配！'];
+    showResult({
+      stars, title: titles[stars], detail: `色差值 ${d.toFixed(1)} · 获得 ${gain} 分${M.hidden ? '（隐藏目标挑战）' : ''}`,
+      target: M.target, mine, nextText: '下一个颜色', onNext: newMixTarget
+    });
+  });
+
+  /* ================= 玩法二：渐变排序（拖拽 + 平滑让位） =================
+     色块用绝对定位摆放，位置只由数组下标决定；
+     拖动时只改 transform 跟随手指，其他色块靠 left 过渡平滑让位。
+     不再用 FLIP 反算位移，避免色块飞出屏幕。 */
+  const G = { sorter: null, diff: 'easy', timer: null, start: 0 };
+
+  function makeSortable(board, tiles, height) {
+    const gap = 8;
+    let drag = null;
+    board.innerHTML = '';
+    board.style.height = height + 'px';
+    tiles.forEach(t => {
+      const el = document.createElement('div');
+      el.className = 'gradient-tile no-anim';
+      el.style.background = rgb(t.color);
+      el.innerHTML = '<span class="order-num"></span>';
+      t.el = el;
+      bind(el);
+      board.appendChild(el);
+    });
+    function metrics() {
+      const n = tiles.length;
+      const bw = board.clientWidth || 340;
+      // 先算块宽，再用剩余空间居中（修复 5 个时不居中）
+      const w = Math.max(24, Math.min(52, Math.floor((bw - 24 - gap * (n - 1)) / n)));
+      const total = n * w + (n - 1) * gap;
+      const pad = Math.max(8, Math.floor((bw - total) / 2));
+      return { n, w, gap, pad };
+    }
+    const leftOf = (i, m) => m.pad + i * (m.w + m.gap);
+    function layout() {
+      const m = metrics();
+      tiles.forEach((t, i) => {
+        t.el.style.width = m.w + 'px';
+        t.el.style.transform = `translate3d(${leftOf(i, m)}px,0,0)`;
+        t.el.querySelector('.order-num').textContent = i + 1;
+      });
+    }
+    layout();
+    requestAnimationFrame(() => tiles.forEach(t => t.el.classList.remove('no-anim')));
+
+    function bind(el) {
+      let onMove = null, onUp = null;
+      const cleanup = () => {
+        document.removeEventListener('pointermove', onMove);
+        document.removeEventListener('pointerup', onUp);
+        document.removeEventListener('pointercancel', onUp);
+      };
+      el.addEventListener('pointerdown', e => {
+        if (drag) return;
+        e.preventDefault();
+        const m = metrics();
+        const idx = tiles.findIndex(t => t.el === el);
+        const startLeft = leftOf(idx, m);
+        drag = { el, sx: e.clientX, sy: e.clientY, startLeft, visual: startLeft, m, lastIdx: idx };
+        el.classList.add('dragging');
+        el.style.transform = `translate3d(${startLeft}px,0,0) scale(1.08)`;
+        A.vibrate('tap');
+
+        onMove = ev => {
+          if (!drag || drag.el !== el) return;
+          const d = drag;
+          const dx = ev.clientX - d.sx, dy = ev.clientY - d.sy;
+          d.visual = d.startLeft + dx;
+          const idx2 = clamp(Math.round((d.visual - d.m.pad) / (d.m.w + d.m.gap)), 0, tiles.length - 1);
+          if (idx2 !== d.lastIdx) {
+            const cur = tiles.findIndex(t => t.el === el);
+            const [item] = tiles.splice(cur, 1);
+            tiles.splice(idx2, 0, item);
+            d.lastIdx = idx2;
+            layout(); // 被拖块由下面的 transform 覆写，其余块平滑挤让
+            A.sfx('swap'); A.vibrate('step');
+          }
+          // 被拖块跟手，位置 = 手指位置 - 目标格基准，其余块保持 layout 的位置
+          el.style.transform = `translate3d(${d.visual.toFixed(1)}px,${dy.toFixed(1)}px,0) scale(1.08)`;
+        };
+        onUp = () => {
+          if (!drag || drag.el !== el) return;
+          const d = drag; drag = null;
+          cleanup();
+          el.classList.remove('dragging');
+          const idx3 = tiles.findIndex(t => t.el === el);
+          // 归位到格子基准，靠 CSS 的 .34s 缓动平滑落位
+          el.style.transform = `translate3d(${leftOf(idx3, d.m)}px,0,0)`;
+          A.sfx('swap'); A.vibrate('tap');
+        };
+        document.addEventListener('pointermove', onMove);
+        document.addEventListener('pointerup', onUp);
+        document.addEventListener('pointercancel', onUp);
+      });
+    }
+    return {
+      tiles,
+      relayout: layout,
+      sorted: () => tiles.every((t, i) => t.correct === i)
+    };
+  }
+
+  function newGradient() {
+    clearInterval(G.timer);
+    const n = G.diff === 'easy' ? 5 : G.diff === 'normal' ? 7 : 9;
+    const hue = rand(0, 359);
+    const colors = [];
+    // 从左到右：由浅到深（i=0 最亮，i=n-1 最暗）
+    for (let i = 0; i < n; i++) colors.push(hslToRgb(hue, 62, 84 - (i / (n - 1)) * 66));
+    const tiles = shuffle(colors.map((c, i) => ({ color: c, correct: i })));
+    G.sorter = makeSortable($('gradient-board'), tiles, 230);
+    G.start = Date.now();
+    G.timer = setInterval(() => { $('gradient-time').textContent = Math.floor((Date.now() - G.start) / 1000) + 's'; }, 500);
+  }
+  function hslToRgb(h, s, l) {
+    s /= 100; l /= 100;
+    const k = n => (n + h / 30) % 12;
+    const a = s * Math.min(l, 1 - l);
+    const f = n => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+    return [Math.round(f(0) * 255), Math.round(f(8) * 255), Math.round(f(4) * 255)];
+  }
+  $('btn-gradient-new').addEventListener('click', () => { A.sfx('click'); newGradient(); });
+  $('btn-gradient-check').addEventListener('click', () => {
+    const ok = G.sorter.sorted();
+    clearInterval(G.timer);
+    if (ok) {
+      const sec = Math.floor((Date.now() - G.start) / 1000);
+      const gain = G.sorter.tiles.length * 10 + Math.max(0, 60 - sec);
+      $('gradient-score').textContent = (+$('gradient-score').textContent) + gain;
+      S.stats.games++; save();
+      A.sfx('levelup'); A.vibrate('success');
+      showResult({ stars: sec < 15 ? 6 : sec < 25 ? 5 : 4, title: '排序正确！', detail: `用时 ${sec} 秒 · 获得 ${gain} 分`, target: G.sorter.tiles[0].color, mine: G.sorter.tiles[G.sorter.tiles.length - 1].color, nextText: '再来一局', onNext: newGradient });
+    } else {
+      A.sfx('wrong'); A.vibrate('fail'); toast('还没排对，再看看深浅顺序');
+    }
+  });
+
+  /* ================= 玩法三：找不同 ================= */
+  const O = { cells: [], oddIndex: 0, diff: 'easy', timer: null, left: 30, busy: false };
+  function newOdd() {
+    clearInterval(O.timer);
+    O.busy = false;
+    const n = O.diff === 'easy' ? 3 : O.diff === 'normal' ? 4 : 5;
+    const base = [rand(40, 215), rand(40, 215), rand(40, 215)];
+    const delta = O.diff === 'easy' ? 34 : O.diff === 'normal' ? 20 : 11;
+    O.oddIndex = rand(0, n * n - 1);
+    O.cells = [];
+    for (let i = 0; i < n * n; i++) {
+      let c = base.slice();
+      if (i === O.oddIndex) {
+        const ch = rand(0, 2);
+        c[ch] = clamp(c[ch] + (Math.random() < .5 ? -delta : delta), 0, 255);
+      }
+      O.cells.push(c);
+    }
+    const board = $('odd-board');
+    board.style.gridTemplateColumns = `repeat(${n},1fr)`;
+    board.innerHTML = '';
+    O.cells.forEach((c, i) => {
+      const el = document.createElement('div');
+      el.className = 'odd-tile';
+      el.style.background = rgb(c);
+      el.addEventListener('click', () => onOddClick(i, el));
+      board.appendChild(el);
+    });
+    O.left = O.diff === 'easy' ? 30 : O.diff === 'normal' ? 25 : 20;
+    $('odd-time').textContent = O.left + 's';
+    O.timer = setInterval(() => {
+      O.left--;
+      $('odd-time').textContent = O.left + 's';
+      if (O.left <= 0) { clearInterval(O.timer); A.sfx('wrong'); A.vibrate('fail'); toast('时间到！换一局再试'); setTimeout(newOdd, 900); }
+    }, 1000);
+  }
+  function onOddClick(i, el) {
+    if (O.busy) return;
+    if (i === O.oddIndex) {
+      O.busy = true; clearInterval(O.timer);
+      el.classList.add('right');
+      const gain = 50 + O.left * 3;
+      $('odd-score').textContent = (+$('odd-score').textContent) + gain;
+      S.stats.games++; save();
+      A.sfx('correct'); A.vibrate('success');
+      setTimeout(() => showResult({ stars: O.left > 20 ? 6 : O.left > 12 ? 5 : 4, title: '找到了！', detail: `剩余 ${O.left} 秒 · 获得 ${gain} 分`, target: O.cells[O.oddIndex], mine: O.cells[O.oddIndex], nextText: '下一局', onNext: newOdd }), 350);
+    } else {
+      el.classList.add('wrong');
+      setTimeout(() => el.classList.remove('wrong'), 460);
+      const before = +$('odd-score').textContent;
+      const after = Math.max(0, before - 5);
+      $('odd-score').textContent = after;
+      penaltyFeedback($('odd-score'), before - after);
+    }
+  }
+  $('btn-odd-new').addEventListener('click', () => { A.sfx('click'); newOdd(); });
+
+  /* ================= 玩法四：记忆复刻 ================= */
+  const Y = { target: [0, 0, 0], ctrl: null, phase: 'idle', score: 0, combo: 0, diff: 'easy', timer: null, locked: false };
+  function resetMemory() {
+    clearInterval(Y.timer);
+    Y.phase = 'idle'; Y.locked = false;
+    $('memory-disc').className = 'color-disc big';
+    $('memory-disc').innerHTML = '<span class="disc-question">?</span>';
+    $('memory-disc').style.background = '#ece9f7';
+    $('memory-label').textContent = '先看清这个颜色';
+    $('memory-label').classList.remove('showing');
+    $('memory-count').textContent = '';
+    $('memory-status').textContent = '点「开始记忆」，会出现一个颜色，记住它';
+    $('btn-memory-start').textContent = '开始记忆';
+    $('memory-sliders').classList.add('locked');
+    if (!Y.ctrl) Y.ctrl = createSliders($('memory-sliders'), [128, 128, 128], v => { $('memory-disc').style.background = rgb(v); });
+    else Y.ctrl.set([128, 128, 128]);
+    $('memory-disc').style.background = '#ece9f7';
+  }
+  $('btn-memory-start').addEventListener('click', () => {
+    if (Y.phase === 'show') return;
+    if (Y.phase === 'input') { // 重看一次（本次得分打折）
+      Y.reshow = true;
+    }
+    Y.target = Y.target && Y.phase === 'input' ? Y.target : genTarget(Y.diff);
+    const sec = Y.diff === 'easy' ? 5 : Y.diff === 'normal' ? 4 : 3;
+    Y.phase = 'show'; Y.locked = true;
+    $('memory-sliders').classList.add('locked');
+    $('memory-disc').className = 'color-disc big showing';
+    $('memory-disc').style.background = rgb(Y.target);
+    $('memory-disc').innerHTML = '';
+    $('memory-label').textContent = '记住这个颜色！';
+    $('memory-label').classList.add('showing');
+    $('memory-status').textContent = Y.reshow ? '再看一遍，这次得分会打折' : '盯住颜色，倒计时结束后它会消失';
+    $('btn-memory-start').textContent = '记忆中…';
+    A.sfx('flash'); A.vibrate('tap'); A.speak('记住这个颜色');
+    let left = sec;
+    $('memory-count').textContent = left;
+    clearInterval(Y.timer);
+    Y.timer = setInterval(() => {
+      left--;
+      if (left > 0) {
+        $('memory-count').textContent = left;
+        A.sfx('flash'); A.vibrate('step');
+      } else {
+        clearInterval(Y.timer);
+        Y.phase = 'input'; Y.locked = false;
+        $('memory-disc').className = 'color-disc big';
+        $('memory-disc').innerHTML = '<span class="disc-question">?</span>';
+        $('memory-disc').style.background = '#ece9f7';
+        $('memory-count').textContent = '';
+        $('memory-label').textContent = '现在用推杆还原刚才的颜色';
+        $('memory-label').classList.remove('showing');
+        $('memory-status').textContent = '拖动 R / G / B 三个推杆，调好后点「确认还原」';
+        $('btn-memory-start').textContent = '再看一次';
+        $('memory-sliders').classList.remove('locked');
+        Y.ctrl.set([128, 128, 128]);
+        A.sfx('click'); A.vibrate('tap');
+      }
+    }, 1000);
+  });
+  $('btn-memory-submit').addEventListener('click', () => {
+    if (Y.phase !== 'input' || Y.locked) { toast('请先点「开始记忆」，看清颜色后再还原'); return; }
+    Y.locked = true;
+    const mine = Y.ctrl.get();
+    const d = deltaE(mine, Y.target);
+    let stars = calcStars(d);
+    let gain = stars * 10 + Y.combo * 2;
+    if (Y.reshow) { gain = Math.ceil(gain * 0.5); stars = Math.max(1, stars - 1); }
+    Y.score += gain; Y.combo = stars >= 4 ? Y.combo + 1 : 0;
+    Y.reshow = false;
+    $('memory-score').textContent = Y.score;
+    $('memory-combo').textContent = Y.combo;
+    S.stats.games++; save();
+    A.sfx('correct'); A.vibrate('success');
+    showResult({
+      stars, title: stars >= 5 ? '记性真好！' : stars >= 3 ? '还不错' : '再练练', detail: `色差值 ${d.toFixed(1)} · 获得 ${gain} 分`,
+      target: Y.target, mine, nextText: '再记一个', onNext: () => { Y.target = null; resetMemory(); }
+    });
+  });
+
+  /* ================= 玩法五：闯关模式 ================= */
+  const Q = { level: 1, stars: 0, type: '', clean: null, locked: false, ctx: {}, timer: null };
+  const TOTAL_LEVELS = 12;
+  const TYPES = ['mix', 'gradient', 'odd', 'memory'];
+  const TYPE_NAMES = { mix: '调色挑战', gradient: '渐变排序', odd: '颜色找不同', memory: '记忆复刻' };
+  function startQuest() {
+    Q.level = 1; Q.stars = 0;
+    go('quest');
+    renderQuestLevel();
+  }
+  function questCleanup() { clearInterval(Q.timer); if (Q.clean) { Q.clean(); Q.clean = null; } }
+  function renderQuestLevel() {
+    questCleanup();
+    const body = $('quest-body');
+    body.innerHTML = '';
+    Q.locked = false;
+    Q.type = TYPES[(Q.level - 1) % 4];
+    const lv = Math.min(3, 1 + Math.floor((Q.level - 1) / 4));
+    const diff = ['easy', 'normal', 'hard'][lv - 1];
+    $('quest-level').textContent = `第 ${Q.level} / ${TOTAL_LEVELS} 关`;
+    $('quest-name').textContent = TYPE_NAMES[Q.type];
+    $('quest-stars').textContent = `累计 ${Q.stars} 星`;
+    $('quest-progress-bar').style.width = ((Q.level - 1) / TOTAL_LEVELS * 100) + '%';
+    $('btn-quest-submit').textContent = Q.type === 'memory' ? '开始记忆' : '提交答案';
+
+    if (Q.type === 'mix') {
+      const target = genTarget(diff);
+      Q.ctx = { target };
+      body.innerHTML = `
+        <div class="compare-area" style="margin-top:0">
+          <div class="compare-item">
+            <div class="color-disc" id="q-target" style="background:${rgb(target)}"></div>
+            <small>目标色</small><code>RGB ${target.join(',')}</code>
+          </div>
+          <div class="vs-mark">VS</div>
+          <div class="compare-item">
+            <div class="color-disc" id="q-current"></div>
+            <small>你的颜色</small><code id="q-rgb">RGB 128,128,128</code>
+          </div>
+        </div>
+        <div class="slider-panel" id="q-sliders"></div>`;
+      Q.ctx.ctrl = createSliders($('q-sliders'), [128, 128, 128], v => {
+        $('q-current').style.background = rgb(v);
+        $('q-rgb').textContent = `RGB ${v.join(',')}`;
+      });
+      $('q-current').style.background = rgb(Q.ctx.ctrl.get());
+    } else if (Q.type === 'gradient') {
+      const n = diff === 'easy' ? 5 : diff === 'normal' ? 7 : 9;
+      const hue = rand(0, 359);
+      const colors = [];
+      for (let i = 0; i < n; i++) colors.push(hslToRgb(hue, 62, 84 - (i / (n - 1)) * 66));
+      const tiles = shuffle(colors.map((c, i) => ({ color: c, correct: i })));
+      body.innerHTML = `<div class="instruction">按住色块拖到新位置，按<b>从浅到深</b>排好</div><div class="gradient-board"></div>`;
+      Q.ctx = { tiles, sorter: null };
+      Q.ctx.sorter = makeSortable(body.querySelector('.gradient-board'), tiles, 190);
+    } else if (Q.type === 'odd') {
+      const n = diff === 'easy' ? 3 : diff === 'normal' ? 4 : 5;
+      const base = [rand(40, 215), rand(40, 215), rand(40, 215)];
+      const delta = diff === 'easy' ? 34 : diff === 'normal' ? 20 : 11;
+      const odd = rand(0, n * n - 1);
+      const cells = [];
+      for (let i = 0; i < n * n; i++) {
+        const c = base.slice();
+        if (i === odd) { const ch = rand(0, 2); c[ch] = clamp(c[ch] + (Math.random() < .5 ? -delta : delta), 0, 255); }
+        cells.push(c);
+      }
+      Q.ctx = { odd, cells };
+      body.innerHTML = `<div class="instruction">找出颜色<b>不一样</b>的那一块，点它，再提交</div><div class="odd-board" id="q-board" style="aspect-ratio:1"></div>`;
+      $('q-board').style.gridTemplateColumns = `repeat(${n},1fr)`;
+      cells.forEach((c, i) => {
+        const el = document.createElement('div');
+        el.className = 'odd-tile';
+        el.style.background = rgb(c);
+        el.addEventListener('click', () => {
+          Q.ctx.picked = i;
+          $$('.odd-tile', $('q-board')).forEach(x => x.style.outline = 'none');
+          el.style.outline = '3px solid #6c5ce7';
+          A.sfx('click'); A.vibrate('tap');
+        });
+        $('q-board').appendChild(el);
+      });
+    } else {
+      const target = genTarget(diff);
+      Q.ctx = { target, phase: 'idle' };
+      body.innerHTML = `
+        <div class="memory-stage" style="padding-top:0">
+          <div class="color-disc big" id="q-target" style="margin:0 auto"><span class="disc-question">?</span></div>
+          <div class="memory-status" id="q-status">点击「开始记忆」</div>
+        </div>
+        <div class="slider-panel" id="q-sliders"></div>`;
+      Q.ctx.ctrl = createSliders($('q-sliders'), [128, 128, 128], v => { if (Q.ctx.phase === 'input') $('q-target').style.background = rgb(v); });
+    }
+  }
+  function enterQuestInput() {
+    clearInterval(Q.timer);
+    Q.ctx.phase = 'input';
+    $('q-target').innerHTML = '<span class="disc-question">?</span>';
+    $('q-target').style.background = '#ece9f7';
+    $('q-status').textContent = '颜色消失了，用推杆还原';
+    $('btn-quest-submit').textContent = '提交答案';
+    Q.ctx.ctrl.set([128, 128, 128]);
+  }
+  $('btn-quest-submit').addEventListener('click', () => {
+    if (Q.locked) return;
+    if (Q.type === 'memory') {
+      if (Q.ctx.phase === 'idle') {
+        Q.ctx.phase = 'show';
+        const sec = Math.min(3, 1 + Math.floor((Q.level - 1) / 4));
+        $('q-target').style.background = rgb(Q.ctx.target);
+        $('q-target').innerHTML = '';
+        $('q-status').textContent = `记住这个颜色 · ${sec}秒`;
+        $('btn-quest-submit').textContent = '记住了，开始还原';
+        A.sfx('flash'); A.vibrate('tap'); A.speak('记住这个颜色');
+        let left = sec;
+        Q.timer = setInterval(() => {
+          left--;
+          if (left > 0) { $('q-status').textContent = `记住这个颜色 · ${left}秒`; A.sfx('flash'); }
+          else enterQuestInput();
+        }, 1000);
+        return;
+      }
+      if (Q.ctx.phase === 'show') { enterQuestInput(); return; }
+    }
+    Q.locked = true;
+    let stars = 0, target, mine, detail = '';
+    if (Q.type === 'mix') {
+      target = Q.ctx.target; mine = Q.ctx.ctrl.get();
+      const d = deltaE(mine, target); stars = calcStars(d); detail = `色差值 ${d.toFixed(1)}`;
+    } else if (Q.type === 'gradient') {
+      const ok = Q.ctx.tiles.every((t, i) => t.correct === i);
+      stars = ok ? 6 : 2; target = Q.ctx.tiles[0].color; mine = Q.ctx.tiles[Q.ctx.tiles.length - 1].color;
+      detail = ok ? '顺序完全正确' : '顺序还有错误';
+    } else if (Q.type === 'odd') {
+      const ok = Q.ctx.picked === Q.ctx.odd;
+      stars = ok ? 6 : 2; target = Q.ctx.cells[Q.ctx.odd]; mine = target;
+      detail = ok ? '找对了！' : '这次找错了';
+    } else {
+      target = Q.ctx.target; mine = Q.ctx.ctrl.get();
+      const d = deltaE(mine, target); stars = calcStars(d); detail = `色差值 ${d.toFixed(1)}`;
+    }
+    Q.stars += stars;
+    S.stats.totalStars = Math.max(S.stats.totalStars, Q.stars);
+    S.stats.games++; save();
+    if (stars >= 5) { A.sfx('correct'); A.vibrate('success'); }
+    else { A.sfx('wrong'); A.vibrate('fail'); }
+    const last = Q.level >= TOTAL_LEVELS;
+    showResult({
+      stars, title: last ? '闯关完成！' : stars >= 5 ? '过关！' : '继续加油',
+      detail: `${detail} · 累计 ${Q.stars} 星`, target, mine,
+      nextText: last ? '查看成绩' : '下一关',
+      onNext: () => {
+        if (last) {
+          S.stats.level = Math.max(S.stats.level, TOTAL_LEVELS); save();
+          A.sfx('levelup'); A.vibrate('level');
+          go('home'); toast(`闯关完成！共获得 ${Q.stars} 星`);
+        } else { Q.level++; renderQuestLevel(); }
+      }
+    });
+  });
+  $('btn-quest-quit').addEventListener('click', () => { A.sfx('click'); go('home'); });
+
+  /* ================= 难度按钮 ================= */
+  $$('.diff-row').forEach(row => {
+    $$('.diff-btn', row).forEach(btn => btn.addEventListener('click', () => {
+      A.sfx('click');
+      $$('.diff-btn', row).forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const group = row.dataset.group, d = btn.dataset.diff;
+      if (group === 'mix') { M.diff = d; newMixTarget(); }
+      if (group === 'gradient') { G.diff = d; newGradient(); }
+      if (group === 'odd') { O.diff = d; newOdd(); }
+      if (group === 'memory') { Y.diff = d; resetMemory(); }
+    }));
+  });
+
+  /* ================= 设置 ================= */
+  function openSettings() {
+    $('set-music').checked = S.settings.music;
+    $('set-sound').checked = S.settings.sound;
+    $('set-vibrate').checked = S.settings.vibrate;
+    $('set-speech').checked = S.settings.speech;
+    $$('.song-picker button').forEach(b => b.classList.toggle('active', !A.customMode && +b.dataset.song === (S.settings.song || 0)));
+    $('settings-overlay').classList.add('show');
+    A.sfx('click');
+  }
+  $('btn-settings').addEventListener('click', openSettings);
+  $('btn-close-settings').addEventListener('click', () => { $('settings-overlay').classList.remove('show'); A.sfx('click'); });
+  $('settings-overlay').addEventListener('click', e => { if (e.target === $('settings-overlay')) $('settings-overlay').classList.remove('show'); });
+  ['music', 'sound', 'vibrate', 'speech'].forEach(k => {
+    $('set-' + k).addEventListener('change', e => {
+      S.settings[k] = e.target.checked; save();
+      A.applySettings(S.settings);
+      if (k === 'vibrate' && e.target.checked) A.vibrate('tap');
+    });
+  });
+  $$('.song-picker button').forEach(b => b.addEventListener('click', () => {
+    const i = +b.dataset.song;
+    S.settings.song = i; save();
+    A.init(); A.setSong(i); A.startMusic();
+    $$('.song-picker button').forEach(x => x.classList.toggle('active', x === b));
+    A.sfx('click');
+    toast('已切换音乐：' + A.getSongName());
+  }));
+  $('set-custom-music').addEventListener('change', e => {
+    const f = e.target.files && e.target.files[0];
+    if (!f) return;
+    if (window.__musicUrl) URL.revokeObjectURL(window.__musicUrl);
+    window.__musicUrl = URL.createObjectURL(f);
+    A.init(); A.setCustomMusic(window.__musicUrl);
+    $$('.song-picker button').forEach(x => x.classList.remove('active'));
+    toast('已播放你的音乐：' + f.name);
+  });
+  $('btn-clear-music').addEventListener('click', () => {
+    A.clearCustomMusic();
+    if (window.__musicUrl) { URL.revokeObjectURL(window.__musicUrl); window.__musicUrl = null; }
+    A.setSong(S.settings.song || 0);
+    if (S.settings.music) A.startMusic();
+    $$('.song-picker button').forEach(b => b.classList.toggle('active', +b.dataset.song === (S.settings.song || 0)));
+    toast('已恢复内置音乐');
+  });
+  $('btn-reset-data').addEventListener('click', () => {
+    if (confirm('确定清除所有成绩记录吗？此操作不可恢复。')) {
+      S.stats = JSON.parse(JSON.stringify(DEFAULTS.stats)); save(); refreshHome();
+      toast('成绩已清空');
+    }
+  });
+
+  function refreshHome() {
+    $('stat-best').textContent = S.stats.totalStars;
+    $('stat-level').textContent = S.stats.level;
+    $('stat-games').textContent = S.stats.games;
+  }
+
+  /* ================= 启动 ================= */
+  A.applySettings(S.settings);
+  refreshHome();
+  // 首次交互后初始化音频（浏览器策略要求）
+  const unlock = () => { A.init(); if (S.settings.music) A.startMusic(); document.removeEventListener('pointerdown', unlock); };
+  document.addEventListener('pointerdown', unlock);
+  // 注册 Service Worker（PWA 离线可用）
+  if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+})();
+
+</script>
+</body>
+</html>

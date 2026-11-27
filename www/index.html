@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#6c5ce7">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="色彩实验室">
+<meta name="description" content="色彩实验室 - 三原色调色与专注力训练游戏">
+<title>色彩实验室</title>
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- 顶部栏 -->
+<header class="topbar" id="topbar">
+  <button class="icon-btn" id="btn-back" title="返回">
+    <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+  <h1 id="page-title">色彩实验室</h1>
+  <button class="icon-btn" id="btn-settings" title="设置">
+    <svg viewBox="0 0 24 24"><path d="M12 15.5a3.5 3.5 0 100-7 3.5 3.5 0 000 7z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M19.4 15a1.7 1.7 0 00.34 1.88l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.7 1.7 0 00-1.88-.34 1.7 1.7 0 00-1.03 1.56V21a2 2 0 11-4 0v-.09A1.7 1.7 0 009 19.4a1.7 1.7 0 00-1.88.34l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.7 1.7 0 004.63 15a1.7 1.7 0 00-1.56-1.03H3a2 2 0 110-4h.09A1.7 1.7 0 004.6 9a1.7 1.7 0 00-.34-1.88l-.06-.06a2 2 0 112.83-2.83l.06.06A1.7 1.7 0 009 4.63a1.7 1.7 0 001.03-1.56V3a2 2 0 114 0v.09A1.7 1.7 0 0015 4.6a1.7 1.7 0 001.88-.34l.06-.06a2 2 0 112.83 2.83l-.06.06A1.7 1.7 0 0019.37 9v.09a1.7 1.7 0 001.56 1.03H21a2 2 0 110 4h-.09a1.7 1.7 0 00-1.51 1z" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+  </button>
+</header>
+
+<main id="app">
+
+  <!-- ============ 首页 ============ -->
+  <section class="page active" id="page-home">
+    <div class="hero">
+      <div class="hero-logo">
+        <svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="28" fill="#fff" opacity=".22"/><circle cx="24" cy="24" r="8" fill="#ff5e7a"/><circle cx="42" cy="22" r="8" fill="#ffd166"/><circle cx="32" cy="42" r="8" fill="#4dd8c0"/><circle cx="46" cy="42" r="5" fill="#7c8cff"/></svg>
+      </div>
+      <h2>色彩实验室</h2>
+      <p>玩转三原色，练就绝对色感</p>
+    </div>
+
+    <div class="menu-grid">
+      <button class="menu-card c1" data-go="mix">
+        <span class="menu-icon"><svg viewBox="0 0 24 24"><circle cx="9" cy="9" r="5" fill="#ff5e7a" opacity=".9"/><circle cx="15" cy="9" r="5" fill="#ffd166" opacity=".9"/><circle cx="12" cy="15" r="5" fill="#4dd8c0" opacity=".9"/></svg></span>
+        <span class="menu-name">调色挑战</span>
+        <span class="menu-desc">三原色混合 · 星级评分</span>
+      </button>
+      <button class="menu-card c2" data-go="gradient">
+        <span class="menu-icon"><svg viewBox="0 0 24 24"><rect x="3" y="14" width="5" height="6" rx="1.5" fill="#7c8cff"/><rect x="9.5" y="10" width="5" height="10" rx="1.5" fill="#9b7cff"/><rect x="16" y="5" width="5" height="15" rx="1.5" fill="#4dd8c0"/></svg></span>
+        <span class="menu-name">渐变排序</span>
+        <span class="menu-desc">按深浅排列 · 视觉比较</span>
+      </button>
+      <button class="menu-card c3" data-go="odd">
+        <span class="menu-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2" fill="#ff5e7a"/><rect x="14" y="3" width="7" height="7" rx="2" fill="#ff5e7a"/><rect x="3" y="14" width="7" height="7" rx="2" fill="#ff5e7a"/><rect x="14" y="14" width="7" height="7" rx="2" fill="#ffd166"/></svg></span>
+        <span class="menu-name">颜色找不同</span>
+        <span class="menu-desc">火眼金睛 · 专注训练</span>
+      </button>
+      <button class="menu-card c4" data-go="memory">
+        <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z" fill="none" stroke="#7c8cff" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="#7c8cff"/></svg></span>
+        <span class="menu-name">记忆复刻</span>
+        <span class="menu-desc">记住颜色 · 还原挑战</span>
+      </button>
+      <button class="menu-card c5 wide" data-go="quest">
+        <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M6 21V4m0 1h11l-2 4 2 4H6" fill="none" stroke="#ffb84d" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span class="menu-name">闯关模式</span>
+        <span class="menu-desc">四大玩法轮流上阵 · 逐关进阶</span>
+      </button>
+    </div>
+
+    <div class="home-stats">
+      <div><b id="stat-best">0</b><span>最高星数</span></div>
+      <div><b id="stat-level">1</b><span>闯关进度</span></div>
+      <div><b id="stat-games">0</b><span>游戏局数</span></div>
+    </div>
+    <p class="tip-line">每天玩一会儿，色彩感知和专注力都会变强</p>
+  </section>
+
+  <!-- ============ 调色挑战 ============ -->
+  <section class="page" id="page-mix">
+    <div class="game-bar">
+      <div class="diff-row" data-group="mix">
+        <span class="diff-label">难度</span>
+        <button class="diff-btn active" data-diff="easy">简单</button>
+        <button class="diff-btn" data-diff="normal">中等</button>
+        <button class="diff-btn" data-diff="hard">困难</button>
+      </div>
+      <div class="score-line">得分 <b id="mix-score">0</b> <i>·</i> 连击 <b id="mix-combo">0</b></div>
+    </div>
+
+    <div class="compare-area">
+      <div class="compare-item">
+        <div class="color-disc" id="target-disc"></div>
+        <small>目标色 · 照着它调</small>
+        <code id="target-rgb">RGB --,--,--</code>
+        <button class="mini-btn" id="btn-mix-hint">藏起目标挑战</button>
+      </div>
+      <div class="vs-mark">VS</div>
+      <div class="compare-item">
+        <div class="color-disc" id="mix-disc"></div>
+        <small>我的调色</small>
+        <code id="mix-hex">rgb(0,0,0)</code>
+      </div>
+    </div>
+
+    <div class="slider-panel" id="mix-sliders"></div>
+
+    <div class="action-row">
+      <button class="primary-btn" id="btn-mix-submit">提交调色</button>
+      <button class="ghost-btn" id="btn-mix-skip">换一个</button>
+    </div>
+  </section>
+
+  <!-- ============ 渐变排序 ============ -->
+  <section class="page" id="page-gradient">
+    <div class="game-bar">
+      <div class="diff-row" data-group="gradient">
+        <span class="diff-label">数量</span>
+        <button class="diff-btn active" data-diff="easy">5个</button>
+        <button class="diff-btn" data-diff="normal">7个</button>
+        <button class="diff-btn" data-diff="hard">9个</button>
+      </div>
+      <div class="score-line">得分 <b id="gradient-score">0</b> <i>·</i> 用时 <b id="gradient-time">0s</b></div>
+    </div>
+    <div class="instruction">按住色块<b>拖动</b>到想要的位置，其他色块会让开；把它们按<b>从浅到深</b>排好顺序</div>
+    <div class="gradient-board" id="gradient-board"></div>
+    <div class="action-row">
+      <button class="primary-btn" id="btn-gradient-check">检查排序</button>
+      <button class="ghost-btn" id="btn-gradient-new">重新打乱</button>
+    </div>
+  </section>
+
+  <!-- ============ 找不同 ============ -->
+  <section class="page" id="page-odd">
+    <div class="game-bar">
+      <div class="diff-row" data-group="odd">
+        <span class="diff-label">难度</span>
+        <button class="diff-btn active" data-diff="easy">简单</button>
+        <button class="diff-btn" data-diff="normal">中等</button>
+        <button class="diff-btn" data-diff="hard">困难</button>
+      </div>
+      <div class="score-line">得分 <b id="odd-score">0</b> <i>·</i> 剩余 <b id="odd-time">30s</b></div>
+    </div>
+    <div class="instruction">找出颜色<b>不一样</b>的那一块，点它！</div>
+    <div class="odd-board" id="odd-board"></div>
+    <div class="action-row">
+      <button class="ghost-btn full" id="btn-odd-new">换一局</button>
+    </div>
+  </section>
+
+  <!-- ============ 记忆复刻 ============ -->
+  <section class="page" id="page-memory">
+    <div class="game-bar">
+      <div class="diff-row" data-group="memory">
+        <span class="diff-label">难度</span>
+        <button class="diff-btn active" data-diff="easy">3秒</button>
+        <button class="diff-btn" data-diff="normal">2秒</button>
+        <button class="diff-btn" data-diff="hard">1秒</button>
+      </div>
+      <div class="score-line">得分 <b id="memory-score">0</b> <i>·</i> 连击 <b id="memory-combo">0</b></div>
+    </div>
+
+    <div class="memory-stage">
+      <div class="memory-label" id="memory-label">先看清这个颜色</div>
+      <div class="color-disc big" id="memory-disc"><span class="disc-question">?</span></div>
+      <div class="memory-count" id="memory-count"></div>
+      <div class="memory-status" id="memory-status">点击下方按钮开始，记住出现的颜色</div>
+    </div>
+
+    <div class="slider-panel" id="memory-sliders"></div>
+
+    <div class="action-row">
+      <button class="primary-btn" id="btn-memory-start">开始记忆</button>
+      <button class="ghost-btn" id="btn-memory-submit">确认还原</button>
+    </div>
+  </section>
+
+  <!-- ============ 闯关模式 ============ -->
+  <section class="page" id="page-quest">
+    <div class="quest-head">
+      <div class="quest-badge" id="quest-level">第 1 关</div>
+      <div class="quest-name" id="quest-name">调色挑战</div>
+      <div class="quest-stars" id="quest-stars">累计 0 星</div>
+    </div>
+    <div class="quest-progress"><div id="quest-progress-bar"></div></div>
+    <div class="quest-body" id="quest-body"></div>
+    <div class="action-row">
+      <button class="primary-btn" id="btn-quest-submit">提交</button>
+      <button class="ghost-btn" id="btn-quest-quit">退出闯关</button>
+    </div>
+  </section>
+
+</main>
+
+<!-- ============ 设置面板 ============ -->
+<div class="overlay" id="settings-overlay">
+  <div class="sheet">
+    <div class="sheet-head">
+      <h3>设置</h3>
+      <button class="icon-btn" id="btn-close-settings">
+        <svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div class="setting-list">
+      <label class="setting-item">
+        <span><b>背景音乐</b><small>轻柔循环，原创合成</small></span>
+        <input type="checkbox" id="set-music" checked><span class="switch"></span>
+      </label>
+      <div class="setting-item setting-song">
+        <span><b>音乐曲目</b><small>选一首你喜欢的风格</small></span>
+        <div class="song-picker">
+          <button data-song="0" class="active">晨光冒险</button>
+          <button data-song="1">糖果乐园</button>
+          <button data-song="2">星空航行</button>
+        </div>
+      </div>
+      <div class="setting-item setting-song">
+        <span><b>我的音乐</b><small>导入手机里的音乐，替换内置背景音乐</small></span>
+        <label class="file-btn">选择音乐<input type="file" id="set-custom-music" accept="audio/*"></label>
+      </div>
+      <div class="setting-item setting-song">
+        <span><b>恢复内置音乐</b><small>回到原创合成音乐</small></span>
+        <button class="mini-btn" id="btn-clear-music">恢复</button>
+      </div>
+      <label class="setting-item">
+        <span><b>游戏音效</b><small>点击、答对、答错提示音</small></span>
+        <input type="checkbox" id="set-sound" checked><span class="switch"></span>
+      </label>
+      <label class="setting-item">
+        <span><b>震动反馈</b><small>需要手机支持震动</small></span>
+        <input type="checkbox" id="set-vibrate" checked><span class="switch"></span>
+      </label>
+      <label class="setting-item">
+        <span><b>语音提示</b><small>朗读题目与结果</small></span>
+        <input type="checkbox" id="set-speech" checked><span class="switch"></span>
+      </label>
+    </div>
+    <div class="setting-about">
+      <p>色彩实验室 v1.0 · 原创界面设计</p>
+      <p>背景音乐与音效均由程序实时合成，无第三方版权素材</p>
+    </div>
+    <button class="text-btn danger" id="btn-reset-data">清除所有成绩记录</button>
+  </div>
+</div>
+
+<!-- ============ 结果弹窗 ============ -->
+<div class="overlay" id="result-overlay">
+  <div class="result-card">
+    <div class="stars" id="result-stars"></div>
+    <h3 id="result-title">太棒了！</h3>
+    <p id="result-detail">颜色非常接近</p>
+    <div class="result-color-row">
+      <div><span>目标</span><i id="result-target"></i></div>
+      <div><span>你的</span><i id="result-mine"></i></div>
+    </div>
+    <button class="primary-btn full" id="btn-result-next">继续挑战</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="capacitor.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
